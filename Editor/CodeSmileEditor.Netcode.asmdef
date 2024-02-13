@@ -1,7 +1,9 @@
 {
-    "name": "CodeSmileEditor.RENAME",
-    "rootNamespace": "CodeSmileEditor.RENAME",
-    "references": [],
+    "name": "CodeSmileEditor.Netcode",
+    "rootNamespace": "CodeSmileEditor.Netcode",
+    "references": [
+        "GUID:f2ddabe9e0aaa1c499a086b54a197337"
+    ],
     "includePlatforms": [
         "Editor"
     ],

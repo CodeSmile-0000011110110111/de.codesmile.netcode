@@ -1,5 +1,5 @@
-# Change Log - CodeSmile ???
+# Change Log - CodeSmile Netcode
 
-#### v0.1.0 - Mmm dd, yyyy
+#### v0.1.0 - Feb 13, 2024
 
-- First release
+- Repository created

@@ -1,11 +1,15 @@
 {
-    "name": "CodeSmile.Tests.RENAME",
-    "rootNamespace": "CodeSmile.Tests",
+    "name": "CodeSmileEditor.Tests.Netcode",
+    "rootNamespace": "CodeSmileEditor.Tests",
     "references": [
         "UnityEngine.TestRunner",
-        "Unity.PerformanceTesting"
+        "UnityEditor.TestRunner",
+        "Unity.PerformanceTesting",
+		"CodeSmile.Tests"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
     "overrideReferences": true,
