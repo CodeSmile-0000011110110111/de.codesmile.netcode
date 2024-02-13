@@ -1,0 +1,20 @@
+{
+  "name": "de.codesmile.???",
+  "displayName": "CodeSmile ???",
+  "description": "???",
+  "version": "0.1.0",
+  "unity": "2021.3",
+  "unityRelease": "3f1",
+  "author": {
+    "name": "Steffen Itterheim aka 'CodeSmile' (Unity MVP, Self-Employed)",
+    "email": "steffen@steffenitterheim.de",
+    "url": "https://github.com/CodeSmile-0000011110110111/de.codesmile.???"
+  },
+  "changelogUrl": "https://github.com/CodeSmile-0000011110110111/de.codesmile.???/tree/main/CHANGELOG.md",
+  "documentationUrl": "https://github.com/CodeSmile-0000011110110111/de.codesmile.???/tree/main/README.md",
+  "licensesUrl": "https://github.com/CodeSmile-0000011110110111/de.codesmile.???/tree/main/LICENSE",
+  "dependencies": {
+    "com.unity.test-framework": "1.4.1"
+  },
+  "relatedPackages": {}
+}
