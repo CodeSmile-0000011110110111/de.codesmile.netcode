@@ -1,0 +1,21 @@
+{
+    "name": "CodeSmile.Tests.RENAME",
+    "rootNamespace": "CodeSmile.Tests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "Unity.PerformanceTesting"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
