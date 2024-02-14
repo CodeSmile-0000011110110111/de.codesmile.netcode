@@ -24,12 +24,6 @@ namespace CodeSmile.Netcode.Components
 			"NetworkManagerUI_UseRelay_" + Application.dataPath.GetHashCode();
 
 #if UNITY_EDITOR
-		private void Awake()
-		{
-			DeleteRelayJoinCodeFile();
-			DeleteEditorRelayEnabledFile();
-		}
-
 		private void Start() => TryStartMultiplayerPlaymode();
 
 		private async void TryStartMultiplayerPlaymode()
@@ -38,7 +32,9 @@ namespace CodeSmile.Netcode.Components
 			var useRelay = IsEditorRelayEnabled();
 			if (playerTags.Contains("Server"))
 			{
-				SceneAutoLoader.DisableAll(); // server loads scene via NetworkSessionState
+				SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
+				DeleteRelayJoinCodeFile();
+				DeleteEditorRelayEnabledFile();
 
 				SetEditorRelayEnabled(useRelay);
 				Debug.Log("Multiplayer Playmode => Start SERVER");
@@ -51,7 +47,9 @@ namespace CodeSmile.Netcode.Components
 			}
 			else if (playerTags.Contains("Host"))
 			{
-				SceneAutoLoader.DisableAll(); // server loads scene via NetworkSessionState
+				SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
+				DeleteRelayJoinCodeFile();
+				DeleteEditorRelayEnabledFile();
 
 				SetEditorRelayEnabled(useRelay);
 				Debug.Log("Multiplayer Playmode => Start HOST");
@@ -64,7 +62,8 @@ namespace CodeSmile.Netcode.Components
 			}
 			else if (playerTags.Contains("Client"))
 			{
-				SceneAutoLoader.DisableAll(); // clients auto-load scene when connected
+				SceneAutoLoader.DestroyAll(); // clients auto-load scene when connected
+				await Task.Delay(500); // ensure a client never starts before the host
 
 				NetworkStart.UseRelayService = await WaitForEditorRelayEnabledFile();
 				if (NetworkStart.UseRelayService)

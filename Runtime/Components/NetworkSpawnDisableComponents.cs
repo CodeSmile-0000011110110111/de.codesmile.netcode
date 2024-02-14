@@ -28,6 +28,9 @@ namespace CodeSmile.Netcode.Components
 
 		private void DisableOrDestroyComponents(Component[] components)
 		{
+			if (components == null)
+				return;
+
 			foreach (var component in components)
 			{
 				if (component != null)

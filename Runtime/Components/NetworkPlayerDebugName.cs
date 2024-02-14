@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Unity.Netcode;
+using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
@@ -19,22 +20,20 @@ namespace CodeSmile.Netcode.Components
 			base.OnNetworkSpawn();
 
 			SetPlayerDebugName();
-			UnityEngine.Debug.Log($"Player spawn: {name}");
+			Debug.Log($"Player spawn: {name}");
 		}
 
 		public override void OnNetworkDespawn()
 		{
-			UnityEngine.Debug.Log($"Player despawn: {name}");
+			Debug.Log($"Player despawn: {name}");
 			base.OnNetworkDespawn();
 		}
 
 		private void SetPlayerDebugName()
 		{
-			var local = IsLocalPlayer ? "(LOCAL)" : "";
-			var clientId = $"ClId: {NetworkManager.LocalClientId}";
-			var serverId = $"SvId: {NetworkManager.ServerClientId}";
-			var ownerId = $"OwId: {OwnerClientId}";
-			name = $"{name} ({clientId}, {serverId}, {ownerId}) {local}".Replace("(Clone)", "");
+			var local = IsLocalPlayer ? " LOCAL" : " remote";
+			var ownerId = $"Owner: {OwnerClientId}";
+			name = $"{name} ({ownerId}){local}".Replace("(Clone)", "");
 		}
 	}
 }

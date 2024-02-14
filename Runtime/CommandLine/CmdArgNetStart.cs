@@ -31,19 +31,19 @@ namespace CodeSmile.Netcode.CommandLine
 				if (mode.Equals(Parameters[paramsIndex++]))
 				{
 					Debug.Log("Starting Server ...");
-					SceneAutoLoader.DisableAll(); // server loads scene via NetworkSessionState
+					SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
 					await NetworkStart.Server();
 				}
 				else if (mode.Equals(Parameters[paramsIndex++]))
 				{
 					Debug.Log("Starting Host ...");
-					SceneAutoLoader.DisableAll(); // server loads scene via NetworkSessionState
+					SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
 					await NetworkStart.Host();
 				}
 				else if (mode.Equals(Parameters[paramsIndex++]))
 				{
 					Debug.Log("Starting Client ...");
-					SceneAutoLoader.DisableAll(); // clients auto-load when connected
+					SceneAutoLoader.DestroyAll(); // clients auto-load when connected
 					await NetworkStart.Client();
 				}
 			}

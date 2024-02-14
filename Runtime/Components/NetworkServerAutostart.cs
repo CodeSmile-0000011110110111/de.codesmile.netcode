@@ -11,15 +11,14 @@ using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 #endif
 
-#pragma warning disable 1998 // async method not calling await
-
 namespace CodeSmile.Netcode.Components
 {
 	public class NetworkServerAutostart : OneTimeTaskBehaviour
 	{
-		//[SerializeField] private string m_ServerAddress = "0.0.0.0";
-		[SerializeField] private UInt16 m_Port = 7777;
+		[SerializeField] private UInt16 m_Port = 7778;
 
+// disable: async method lacks 'await' when not building Server
+#pragma warning disable 1998
 		private async void Start()
 		{
 #if UNITY_SERVER
@@ -35,7 +34,7 @@ namespace CodeSmile.Netcode.Components
 
 			// Dedicated server should not use relay
 			NetworkStart.UseRelayService = false;
-			SceneAutoLoader.DisableAll();
+			SceneAutoLoader.DestroyAll();
 
 			var transport = NetworkManager.Singleton.GetTransport();
 			var listenAddress = transport.ConnectionData.IsIpv6 ? "::" : "0.0.0.0";
