@@ -2,7 +2,9 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using System;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace CodeSmile.Netcode.Components
 {
@@ -12,17 +14,25 @@ namespace CodeSmile.Netcode.Components
 		SetActive,
 		SetInactive,
 		Destroy,
+		DrawOnlyShadows,
 	}
 
-	public class NetworkSpawnBehaviour : NetworkOneTimeTaskBehaviour
+	public class NetworkSpawnBehaviour : NetworkBehaviour
 	{
 		[SerializeField] private SpawnTask m_LocalOwnerTask;
 		[SerializeField] private SpawnTask m_RemoteOwnerTask;
 
+		private void Start()
+		{
+			// if not networked, assume it's the local owner
+			if (NetworkManager == null || NetworkManager.IsListening == false)
+				PerformSpawnTask(m_LocalOwnerTask);
+		}
+
 		public override void OnNetworkSpawn()
 		{
 			PerformSpawnTask(IsOwner ? m_LocalOwnerTask : m_RemoteOwnerTask);
-			TaskPerformed();
+			Destroy(this);
 		}
 
 		private void PerformSpawnTask(SpawnTask task)
@@ -40,9 +50,18 @@ namespace CodeSmile.Netcode.Components
 				case SpawnTask.Destroy:
 					Destroy(gameObject);
 					break;
+				case SpawnTask.DrawOnlyShadows:
+					DrawOnlyShadows();
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(task.ToString());
 			}
+		}
+
+		private void DrawOnlyShadows()
+		{
+			foreach (var meshRenderer in GetComponentsInChildren<MeshRenderer>())
+				meshRenderer.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
 		}
 	}
 }

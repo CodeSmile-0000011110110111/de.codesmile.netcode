@@ -32,19 +32,19 @@ namespace CodeSmile.Netcode.CommandLine
 				{
 					Debug.Log("Starting Server ...");
 					SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
-					await NetworkStart.Server();
+					await Network.StartServer();
 				}
 				else if (mode.Equals(Parameters[paramsIndex++]))
 				{
 					Debug.Log("Starting Host ...");
 					SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
-					await NetworkStart.Host();
+					await Network.StartHost();
 				}
 				else if (mode.Equals(Parameters[paramsIndex++]))
 				{
 					Debug.Log("Starting Client ...");
 					SceneAutoLoader.DestroyAll(); // clients auto-load when connected
-					await NetworkStart.Client();
+					await Network.StartClient();
 				}
 			}
 		}

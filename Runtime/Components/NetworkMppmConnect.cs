@@ -39,7 +39,7 @@ namespace CodeSmile.Netcode.Components
 				SetEditorRelayEnabled(useRelay);
 				Debug.Log("Multiplayer Playmode => Start SERVER");
 
-				await NetworkStart.Server();
+				await Network.StartServer();
 				if (useRelay)
 					WriteRelayJoinCodeFile();
 
@@ -54,7 +54,7 @@ namespace CodeSmile.Netcode.Components
 				SetEditorRelayEnabled(useRelay);
 				Debug.Log("Multiplayer Playmode => Start HOST");
 
-				await NetworkStart.Host();
+				await Network.StartHost();
 				if (useRelay)
 					WriteRelayJoinCodeFile();
 
@@ -65,19 +65,19 @@ namespace CodeSmile.Netcode.Components
 				SceneAutoLoader.DestroyAll(); // clients auto-load scene when connected
 				await Task.Delay(500); // ensure a client never starts before the host
 
-				NetworkStart.UseRelayService = await WaitForEditorRelayEnabledFile();
-				if (NetworkStart.UseRelayService)
+				Network.UseRelayService = await WaitForEditorRelayEnabledFile();
+				if (Network.UseRelayService)
 				{
 					Debug.Log("Multiplayer Playmode => CLIENT waiting for relay " +
 					          $"join code in: {RelayJoinCodeFilePath}");
 					var code = await WaitForRelayJoinCodeFile();
-					NetworkStart.RelayJoinCode = code;
+					Network.RelayJoinCode = code;
 
 					Debug.Log($"Multiplayer Playmode => CLIENT got relay join code: {code}");
 				}
 
 				Debug.Log("Multiplayer Playmode => Start CLIENT");
-				await NetworkStart.Client();
+				await Network.StartClient();
 
 				Debug.Log("Multiplayer Playmode => CLIENT connected ...");
 			}
@@ -87,7 +87,7 @@ namespace CodeSmile.Netcode.Components
 
 		private void SetEditorRelayEnabled(Boolean enabled)
 		{
-			NetworkStart.UseRelayService = enabled;
+			Network.UseRelayService = enabled;
 			WriteEditorRelayEnabledFile(enabled);
 			if (enabled)
 				Debug.Log("Multiplayer Playmode => Using Relay service ...");
@@ -173,8 +173,8 @@ namespace CodeSmile.Netcode.Components
 			try
 			{
 				var path = RelayJoinCodeFilePath;
-				File.WriteAllText(path, NetworkStart.RelayJoinCode);
-				Debug.Log($"Wrote join code {NetworkStart.RelayJoinCode} to file: {path}");
+				File.WriteAllText(path, Network.RelayJoinCode);
+				Debug.Log($"Wrote join code {Network.RelayJoinCode} to file: {path}");
 			}
 			catch (Exception e)
 			{

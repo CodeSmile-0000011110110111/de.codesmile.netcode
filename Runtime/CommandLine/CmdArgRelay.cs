@@ -26,7 +26,7 @@ namespace CodeSmile.Netcode.CommandLine
 		{
 			if (Args.TryGetValue(Argument, out var joinCode))
 			{
-				NetworkStart.UseRelayService = true;
+				Network.UseRelayService = true;
 
 				// clients provide relay join code as argument
 				if (String.IsNullOrWhiteSpace(joinCode))
@@ -34,7 +34,7 @@ namespace CodeSmile.Netcode.CommandLine
 				else
 				{
 					Debug.Log($"Connecting through Relay with join code: {joinCode}");
-					NetworkStart.RelayJoinCode = joinCode;
+					Network.RelayJoinCode = joinCode;
 				}
 			}
 		}

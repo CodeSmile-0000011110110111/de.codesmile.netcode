@@ -7,21 +7,31 @@ using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	///     Disables components or game objects based on whether the network object is local or remote owned.
+	/// </summary>
 	public class NetworkSpawnDisableComponents : NetworkBehaviour
 	{
 		[SerializeField] private Boolean m_DisableMeansDestroy;
 
 		[Tooltip("Specify components to disable on spawn, in this order, if the object is locally owned. ")]
-		[SerializeField] private Component[] m_IfLocallyOwned;
+		[SerializeField] private Component[] m_DisableIfLocalOwner;
 
 		[Tooltip("Specify components to disable on spawn, in this order, if the object is remotely owned. ")]
-		[SerializeField] private Component[] m_IfRemotelyOwned;
+		[SerializeField] private Component[] m_DisableIfRemoteOwner;
+
+		public void Start()
+		{
+			// if not networked, assume it's the local owner
+			if (NetworkManager == null || NetworkManager.IsListening == false)
+				DisableOrDestroyComponents(m_DisableIfLocalOwner);
+		}
 
 		public override void OnNetworkSpawn()
 		{
 			base.OnNetworkSpawn();
 
-			DisableOrDestroyComponents(IsLocalPlayer ? m_IfLocallyOwned : m_IfRemotelyOwned);
+			DisableOrDestroyComponents(IsLocalPlayer ? m_DisableIfLocalOwner : m_DisableIfRemoteOwner);
 
 			Destroy(this);
 		}
@@ -35,17 +45,17 @@ namespace CodeSmile.Netcode.Components
 			{
 				if (component != null)
 				{
+					// Debug.Log($"NetworkSpawn disabling component: {component.GetType().Name}");
+
+					if (component is MonoBehaviour mb)
+						mb.enabled = false;
+					else if (component is Collider cc)
+						cc.enabled = false;
+					else
+						throw new ArgumentException($"unhandled type {component.GetType()}");
+
 					if (m_DisableMeansDestroy)
 						Destroy(component);
-					else
-					{
-						if (component is MonoBehaviour mb)
-							mb.enabled = false;
-						else if (component is Collider cc)
-							cc.enabled = false;
-						else
-							throw new ArgumentException($"unhandled type {component.GetType()}");
-					}
 				}
 			}
 		}

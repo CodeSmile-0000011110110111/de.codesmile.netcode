@@ -33,14 +33,14 @@ namespace CodeSmile.Netcode.Components
 			Debug.Log("Dedicated Server autostart ...");
 
 			// Dedicated server should not use relay
-			NetworkStart.UseRelayService = false;
+			Network.UseRelayService = false;
 			SceneAutoLoader.DestroyAll();
 
 			var transport = NetworkManager.Singleton.GetTransport();
 			var listenAddress = transport.ConnectionData.IsIpv6 ? "::" : "0.0.0.0";
 			transport.SetConnectionData("127.0.0.1", m_Port, listenAddress);
 
-			await NetworkStart.Server();
+			await Network.StartServer();
 		}
 	}
 }
