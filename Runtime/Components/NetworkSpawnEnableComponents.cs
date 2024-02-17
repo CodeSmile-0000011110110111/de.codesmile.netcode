@@ -28,7 +28,7 @@ namespace CodeSmile.Netcode.Components
 		{
 			base.OnNetworkSpawn();
 
-			EnableComponents(IsLocalPlayer ? m_EnableIfLocalOwner : m_EnableIfRemoteOwner);
+			EnableComponents(IsOwner ? m_EnableIfLocalOwner : m_EnableIfRemoteOwner);
 
 			TaskPerformed();
 		}

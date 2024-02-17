@@ -31,7 +31,7 @@ namespace CodeSmile.Netcode.Components
 		{
 			base.OnNetworkSpawn();
 
-			DisableOrDestroyComponents(IsLocalPlayer ? m_DisableIfLocalOwner : m_DisableIfRemoteOwner);
+			DisableOrDestroyComponents(IsOwner ? m_DisableIfLocalOwner : m_DisableIfRemoteOwner);
 
 			Destroy(this);
 		}

@@ -31,7 +31,7 @@ namespace CodeSmile.Netcode.Components
 
 		private void SetPlayerDebugName()
 		{
-			var local = IsLocalPlayer ? " LOCAL" : " remote";
+			var local = IsOwner ? " LOCAL" : " remote";
 			var ownerId = $"Owner: {OwnerClientId}";
 			name = $"{name} ({ownerId}){local}".Replace("(Clone)", "");
 		}
