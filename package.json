@@ -14,10 +14,10 @@
   "documentationUrl": "https://github.com/CodeSmile-0000011110110111/de.codesmile.netcode/tree/main/README.md",
   "licensesUrl": "https://github.com/CodeSmile-0000011110110111/de.codesmile.netcode/tree/main/LICENSE",
   "dependencies": {
-	"com.unity.netcode.gameobjects": "1.8.0",
-	"com.unity.services.relay": "1.0.5",
+    "com.unity.netcode.gameobjects": "1.8.1",
+    "com.unity.services.relay": "1.0.5",
     "com.unity.test-framework": "1.4.1",
-	"de.codesmile.extensions": "1.1.0"
+    "de.codesmile.extensions": "1.1.0"
   },
   "relatedPackages": {}
 }

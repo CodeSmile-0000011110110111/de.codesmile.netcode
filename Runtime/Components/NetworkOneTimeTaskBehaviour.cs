@@ -10,12 +10,14 @@ namespace CodeSmile.Netcode.Components
 	public class NetworkOneTimeTaskBehaviour : NetworkBehaviour
 	{
 		[SerializeField]
-		private OnTaskPerformed m_OnTaskPerformed = OnTaskPerformed.DestroyComponent;
+		private OnTaskPerformed m_OnTaskPerformed = OnTaskPerformed.DoNothing;
 
 		protected void TaskPerformed()
 		{
 			switch (m_OnTaskPerformed)
 			{
+				case OnTaskPerformed.DoNothing:
+					break;
 				case OnTaskPerformed.DestroyComponent:
 					Destroy(this);
 					break;
@@ -29,6 +31,7 @@ namespace CodeSmile.Netcode.Components
 
 		private enum OnTaskPerformed
 		{
+			DoNothing,
 			DestroyComponent,
 			DestroyGameObject,
 		}
