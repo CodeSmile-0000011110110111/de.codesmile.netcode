@@ -42,7 +42,7 @@ namespace CodeSmile.Netcode.Components
 			{
 				if (component != null)
 				{
-					Debug.Log($"NetworkSpawn enabling component: {component.GetType().Name}");
+					// Debug.Log($"NetworkSpawn enabling component: {component.GetType().Name}");
 
 					if (component is MonoBehaviour mb)
 						mb.enabled = true;
