@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.Multiplayer.Playmode;
+using Unity.Netcode;
 using UnityEditor;
 #endif
 
@@ -22,6 +23,7 @@ namespace CodeSmile.Netcode.Components
 		// copied from NetworkManagerEditor
 		private static readonly String k_UseEasyRelayIntegrationKey =
 			"NetworkManagerUI_UseRelay_" + Application.dataPath.GetHashCode();
+
 
 #if UNITY_EDITOR
 		private void Start() => TryStartMultiplayerPlaymode();
@@ -37,13 +39,13 @@ namespace CodeSmile.Netcode.Components
 				DeleteEditorRelayEnabledFile();
 
 				SetEditorRelayEnabled(useRelay);
-				Debug.Log("Multiplayer Playmode => Start SERVER");
+				NetworkLog.LogInfo("Multiplayer Playmode => Start SERVER");
 
 				await Network.StartServer();
 				if (useRelay)
 					WriteRelayJoinCodeFile();
 
-				Debug.Log("Multiplayer Playmode => SERVER is running ...");
+				NetworkLog.LogInfo("Multiplayer Playmode => SERVER is running ...");
 			}
 			else if (playerTags.Contains("Host"))
 			{
@@ -52,13 +54,14 @@ namespace CodeSmile.Netcode.Components
 				DeleteEditorRelayEnabledFile();
 
 				SetEditorRelayEnabled(useRelay);
-				Debug.Log("Multiplayer Playmode => Start HOST");
+				NetworkLog.LogInfo("Multiplayer Playmode => Start HOST");
 
 				await Network.StartHost();
+
 				if (useRelay)
 					WriteRelayJoinCodeFile();
 
-				Debug.Log("Multiplayer Playmode => HOST is running ...");
+				NetworkLog.LogInfo("Multiplayer Playmode => HOST is running ...");
 			}
 			else if (playerTags.Contains("Client"))
 			{
@@ -68,18 +71,18 @@ namespace CodeSmile.Netcode.Components
 				Network.UseRelayService = await WaitForEditorRelayEnabledFile();
 				if (Network.UseRelayService)
 				{
-					Debug.Log("Multiplayer Playmode => CLIENT waiting for relay " +
-					          $"join code in: {RelayJoinCodeFilePath}");
+					NetworkLog.LogInfo("Multiplayer Playmode => CLIENT waiting for relay " +
+					                   $"join code in: {RelayJoinCodeFilePath}");
 					var code = await WaitForRelayJoinCodeFile();
 					Network.RelayJoinCode = code;
 
-					Debug.Log($"Multiplayer Playmode => CLIENT got relay join code: {code}");
+					NetworkLog.LogInfo($"Multiplayer Playmode => CLIENT got relay join code: {code}");
 				}
 
-				Debug.Log("Multiplayer Playmode => Start CLIENT");
+				NetworkLog.LogInfo("Multiplayer Playmode => Start CLIENT");
 				await Network.StartClient();
 
-				Debug.Log("Multiplayer Playmode => CLIENT connected ...");
+				NetworkLog.LogInfo("Multiplayer Playmode => CLIENT connected ...");
 			}
 
 			TaskPerformed();
@@ -90,7 +93,7 @@ namespace CodeSmile.Netcode.Components
 			Network.UseRelayService = enabled;
 			WriteEditorRelayEnabledFile(enabled);
 			if (enabled)
-				Debug.Log("Multiplayer Playmode => Using Relay service ...");
+				NetworkLog.LogInfo("Multiplayer Playmode => Using Relay service ...");
 		}
 
 		private static Boolean IsEditorRelayEnabled() => EditorPrefs.GetBool(k_UseEasyRelayIntegrationKey, false);
@@ -113,7 +116,7 @@ namespace CodeSmile.Netcode.Components
 			{
 				var path = EditorRelayEnabledFilePath;
 				File.WriteAllText(path, useRelay.ToString());
-				Debug.Log($"Wrote try-relay-in-editor {useRelay} to file: {path}");
+				// Debug.Log($"Wrote try-relay-in-editor {useRelay} to file: {path}");
 			}
 			catch (Exception e)
 			{
@@ -127,7 +130,7 @@ namespace CodeSmile.Netcode.Components
 			{
 				var path = EditorRelayEnabledFilePath;
 				var useRelay = File.ReadAllText(path);
-				Debug.Log($"Read try-relay-in-editor {useRelay} from file: {path}");
+				// Debug.Log($"Read try-relay-in-editor {useRelay} from file: {path}");
 				return useRelay.Equals(true.ToString());
 			}
 			catch (Exception e)
@@ -145,7 +148,7 @@ namespace CodeSmile.Netcode.Components
 				if (EditorRelayEnabledFileExists())
 				{
 					File.Delete(path);
-					Debug.Log($"Deleted try-relay-in-editor exchange file: {path}");
+					// Debug.Log($"Deleted try-relay-in-editor exchange file: {path}");
 				}
 			}
 			catch (Exception e)
@@ -174,7 +177,7 @@ namespace CodeSmile.Netcode.Components
 			{
 				var path = RelayJoinCodeFilePath;
 				File.WriteAllText(path, Network.RelayJoinCode);
-				Debug.Log($"Wrote join code {Network.RelayJoinCode} to file: {path}");
+				// Debug.Log($"Wrote join code {Network.RelayJoinCode} to file: {path}");
 			}
 			catch (Exception e)
 			{
@@ -189,7 +192,7 @@ namespace CodeSmile.Netcode.Components
 			{
 				var path = RelayJoinCodeFilePath;
 				joinCode = File.ReadAllText(path);
-				Debug.Log($"Read join code {joinCode} from file: {path}");
+				// Debug.Log($"Read join code {joinCode} from file: {path}");
 			}
 			catch (Exception e)
 			{
@@ -206,7 +209,7 @@ namespace CodeSmile.Netcode.Components
 				if (File.Exists(path))
 				{
 					File.Delete(path);
-					Debug.Log($"Deleted join code exchange file: {path}");
+					// Debug.Log($"Deleted join code exchange file: {path}");
 				}
 			}
 			catch (Exception e)
