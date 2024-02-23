@@ -15,6 +15,7 @@ using UnityEditor;
 
 namespace CodeSmile.Netcode.Components
 {
+	[DisallowMultipleComponent]
 	public class NetworkMppmConnect : OneTimeTaskBehaviour
 	{
 		private const String JoinCodeFile = "RelayJoinCode.txt";

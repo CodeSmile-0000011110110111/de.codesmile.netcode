@@ -17,6 +17,7 @@ namespace CodeSmile.Netcode.Components
 		DrawOnlyShadows,
 	}
 
+	[DisallowMultipleComponent]
 	public class NetworkSpawnBehaviour : NetworkBehaviour
 	{
 		[SerializeField] private SpawnTask m_LocalOwnerTask;

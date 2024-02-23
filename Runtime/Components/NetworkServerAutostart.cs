@@ -13,6 +13,7 @@ using Unity.Netcode.Transports.UTP;
 
 namespace CodeSmile.Netcode.Components
 {
+	[DisallowMultipleComponent]
 	public class NetworkServerAutostart : OneTimeTaskBehaviour
 	{
 		[SerializeField] private UInt16 m_Port = 7778;

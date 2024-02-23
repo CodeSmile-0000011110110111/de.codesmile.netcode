@@ -10,6 +10,7 @@ using UnityEngine.SceneManagement;
 
 namespace CodeSmile.Netcode.Components
 {
+	[DisallowMultipleComponent]
 	public class NetworkSessionState : MonoBehaviour
 	{
 		[SerializeField] private SceneReference m_LoadSceneWhenServerStarts;

@@ -10,6 +10,7 @@ namespace CodeSmile.Netcode.Components
 	/// <summary>
 	///     Disables components or game objects based on whether the network object is local or remote owned.
 	/// </summary>
+	[DisallowMultipleComponent]
 	public class NetworkSpawnDisableComponents : NetworkBehaviour
 	{
 		[SerializeField] private Boolean m_DisableMeansDestroy;

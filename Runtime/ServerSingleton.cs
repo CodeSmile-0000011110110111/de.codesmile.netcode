@@ -20,7 +20,10 @@ namespace CodeSmile.Netcode
 
 		}
 
-		public override void OnDestroy() => s_Instance = null;
-
+		public override void OnDestroy()
+		{
+			base.OnDestroy();
+			s_Instance = null;
+		}
 	}
 }

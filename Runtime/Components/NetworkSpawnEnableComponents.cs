@@ -9,6 +9,7 @@ namespace CodeSmile.Netcode.Components
 	/// <summary>
 	///     Enables components or game objects based on whether the network object is local or remote owned.
 	/// </summary>
+	[DisallowMultipleComponent]
 	public class NetworkSpawnEnableComponents : NetworkOneTimeTaskBehaviour
 	{
 		[Tooltip("Specify components to enable on spawn, in this order, if the object is locally owned. ")]
