@@ -13,7 +13,8 @@ namespace CodeSmile.Netcode.Components
 		[Tooltip("If true, replaces 'Network' prefix with 'Local' or 'Remote' to clearly mark ownership. Does nothing" +
 		         "if the object isn't prefixed accordingly.")]
 		[SerializeField] private Boolean m_ReplaceNetworkPrefix;
-		protected String m_Name;
+
+		[NonSerialized] protected String m_Name;
 
 		private void Awake()
 		{

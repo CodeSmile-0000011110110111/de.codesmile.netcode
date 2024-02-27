@@ -3,9 +3,11 @@
 
 using System;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace CodeSmile.Netcode
 {
+	[DisallowMultipleComponent]
 	public abstract class ServerSingleton<T> : NetworkBehaviour where T: ServerSingleton<T>
 	{
 		private static T s_Instance;
