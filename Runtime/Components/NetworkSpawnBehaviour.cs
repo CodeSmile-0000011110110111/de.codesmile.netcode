@@ -13,7 +13,6 @@ namespace CodeSmile.Netcode.Components
 		DoNothing,
 		SetActive,
 		SetInactive,
-		Destroy,
 		DrawOnlyShadows,
 	}
 
@@ -33,7 +32,7 @@ namespace CodeSmile.Netcode.Components
 		public override void OnNetworkSpawn()
 		{
 			PerformSpawnTask(IsOwner ? m_LocalOwnerTask : m_RemoteOwnerTask);
-			Destroy(this);
+			enabled = false;
 		}
 
 		private void PerformSpawnTask(SpawnTask task)
@@ -47,9 +46,6 @@ namespace CodeSmile.Netcode.Components
 					break;
 				case SpawnTask.SetInactive:
 					gameObject.SetActive(false);
-					break;
-				case SpawnTask.Destroy:
-					Destroy(gameObject);
 					break;
 				case SpawnTask.DrawOnlyShadows:
 					DrawOnlyShadows();

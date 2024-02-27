@@ -13,8 +13,6 @@ namespace CodeSmile.Netcode.Components
 	[DisallowMultipleComponent]
 	public class NetworkSpawnDisableComponents : NetworkBehaviour
 	{
-		[SerializeField] private Boolean m_DisableMeansDestroy;
-
 		[Tooltip("Specify components to disable on spawn, in this order, if the object is locally owned. ")]
 		[SerializeField] private Component[] m_DisableIfLocalOwner;
 
@@ -34,7 +32,7 @@ namespace CodeSmile.Netcode.Components
 
 			DisableOrDestroyComponents(IsOwner ? m_DisableIfLocalOwner : m_DisableIfRemoteOwner);
 
-			Destroy(this);
+			enabled = false;
 		}
 
 		private void DisableOrDestroyComponents(Component[] components)
@@ -54,9 +52,6 @@ namespace CodeSmile.Netcode.Components
 						cc.enabled = false;
 					else
 						throw new ArgumentException($"unhandled type {component.GetType()}");
-
-					if (m_DisableMeansDestroy)
-						Destroy(component);
 				}
 			}
 		}

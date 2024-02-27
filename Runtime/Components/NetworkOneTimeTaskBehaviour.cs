@@ -18,11 +18,11 @@ namespace CodeSmile.Netcode.Components
 			{
 				case OnTaskPerformed.DoNothing:
 					break;
-				case OnTaskPerformed.DestroyComponent:
-					Destroy(this);
+				case OnTaskPerformed.DisableComponent:
+					enabled = false;
 					break;
-				case OnTaskPerformed.DestroyGameObject:
-					Destroy(gameObject);
+				case OnTaskPerformed.DeactivateGameObject:
+					gameObject.SetActive(false);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(m_OnTaskPerformed));
@@ -32,8 +32,8 @@ namespace CodeSmile.Netcode.Components
 		private enum OnTaskPerformed
 		{
 			DoNothing,
-			DestroyComponent,
-			DestroyGameObject,
+			DisableComponent,
+			DeactivateGameObject,
 		}
 	}
 
