@@ -12,10 +12,12 @@ namespace CodeSmile.Netcode.Components
 	[DisallowMultipleComponent]
 	public class NetworkSpawnEnableComponents : NetworkOneTimeTaskBehaviour
 	{
-		[Tooltip("Specify components to enable on spawn, in this order, if the object is locally owned. ")]
+		[Tooltip("Specify components to enable on spawn, in this order, if the object is locally owned. " +
+		         "Adding a Transform component means all components on that GameObject will be enabled.")]
 		[SerializeField] private Component[] m_EnableIfLocalOwner;
 
-		[Tooltip("Specify components to enable on spawn, in this order, if the object is remotely owned. ")]
+		[Tooltip("Specify components to enable on spawn, in this order, if the object is remotely owned. " +
+		         "Adding a Transform component means all components on that GameObject will be enabled.")]
 		[SerializeField] private Component[] m_EnableIfRemoteOwner;
 
 		private void Start()
@@ -45,7 +47,14 @@ namespace CodeSmile.Netcode.Components
 				{
 					// Debug.Log($"NetworkSpawn enabling component: {component.GetType().Name}");
 
-					if (component is MonoBehaviour mb)
+					if (component is Transform t)
+					{
+						// if a Transform was added it is interpreted as: enable all components
+						t.gameObject.SetActive(true);
+						foreach (MonoBehaviour mb in t.GetComponents(typeof(MonoBehaviour)))
+							mb.enabled = true;
+					}
+					else if (component is MonoBehaviour mb)
 						mb.enabled = true;
 					else if (component is Collider cc)
 						cc.enabled = true;
