@@ -57,7 +57,7 @@ namespace CodeSmile.Netcode.Components
 			var payload = request.Payload;
 			m_ClientPayloads[clientId] = payload;
 
-			Debug.Log($"=> ConnectionApprovalRequest: Client {clientId}, payload: '{payload?.GetString()}'");
+			NetworkLog.LogInfo($"=> ConnectionApprovalRequest: Client {clientId}, payload: '{payload?.GetString()}' ({payload.Length} bytes)");
 
 			response.Approved = true;
 			response.Reason = $"{nameof(NetworkSessionState)} always approves";
@@ -66,7 +66,7 @@ namespace CodeSmile.Netcode.Components
 
 		private void OnServerStarted()
 		{
-			Debug.Log("=> Server Started");
+			NetworkLog.LogInfo("=> Server Started");
 
 			var netSceneManager = NetworkManager.Singleton.SceneManager;
 			netSceneManager.OnSceneEvent += OnServerSceneEvent;
@@ -76,18 +76,18 @@ namespace CodeSmile.Netcode.Components
 
 		private void OnServerStopped(Boolean isHost)
 		{
-			Debug.Log($"=> {(isHost ? "Host Server" : "Server")} Stopped");
+			NetworkLog.LogInfo($"=> {(isHost ? "Host Server" : "Server")} Stopped");
 
 			if (isHost == false && m_LoadSceneWhenServerStops != null)
 			{
-				Debug.Log($"=> Loading offline scene: {m_LoadSceneWhenServerStops.SceneName}");
+				NetworkLog.LogInfo($"=> Loading offline scene: {m_LoadSceneWhenServerStops.SceneName}");
 				SceneManager.LoadScene(m_LoadSceneWhenServerStarts.SceneName, LoadSceneMode.Single);
 			}
 		}
 
 		private void OnClientStarted()
 		{
-			Debug.Log("=> Client Started");
+			NetworkLog.LogInfo("=> Client Started");
 
 			var netSceneManager = NetworkManager.Singleton.SceneManager;
 			netSceneManager.OnSceneEvent += OnClientSceneEvent;
@@ -95,11 +95,11 @@ namespace CodeSmile.Netcode.Components
 
 		private void OnClientStopped(Boolean isHost)
 		{
-			Debug.Log($"=> {(isHost ? "Host Client" : "Client")} Stopped");
+			NetworkLog.LogInfo($"=> {(isHost ? "Host Client" : "Client")} Stopped");
 
 			if (m_LoadSceneWhenClientDisconnects != null)
 			{
-				Debug.Log($"=> Loading offline scene: {m_LoadSceneWhenServerStops.SceneName}");
+				NetworkLog.LogInfo($"=> Loading offline scene: {m_LoadSceneWhenServerStops.SceneName}");
 				SceneManager.LoadScene(m_LoadSceneWhenClientDisconnects.SceneName, LoadSceneMode.Single);
 			}
 		}
@@ -115,7 +115,7 @@ namespace CodeSmile.Netcode.Components
 		}
 
 		private void OnConnectionEvent(NetworkManager netMan, ConnectionEventData data) =>
-			Debug.Log($"=> Connection Event: {data.EventType}, clientId={data.ClientId}");
+			NetworkLog.LogInfo($"=> Connection Event: {data.EventType}, clientId={data.ClientId}");
 
 		private void OnTransportFailure() => Debug.LogWarning("=> TRANSPORT FAILURE");
 

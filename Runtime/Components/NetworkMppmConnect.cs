@@ -25,7 +25,6 @@ namespace CodeSmile.Netcode.Components
 		private static readonly String k_UseEasyRelayIntegrationKey =
 			"NetworkManagerUI_UseRelay_" + Application.dataPath.GetHashCode();
 
-
 #if UNITY_EDITOR
 		private void Start() => TryStartMultiplayerPlaymode();
 
@@ -46,7 +45,7 @@ namespace CodeSmile.Netcode.Components
 				if (useRelay)
 					WriteRelayJoinCodeFile();
 
-				NetworkLog.LogInfo("Multiplayer Playmode => SERVER is running ...");
+				NetworkLog.LogInfo("Multiplayer Playmode => SERVER did start ...");
 			}
 			else if (playerTags.Contains("Host"))
 			{
@@ -62,7 +61,7 @@ namespace CodeSmile.Netcode.Components
 				if (useRelay)
 					WriteRelayJoinCodeFile();
 
-				NetworkLog.LogInfo("Multiplayer Playmode => HOST is running ...");
+				NetworkLog.LogInfo("Multiplayer Playmode => HOST did start ...");
 			}
 			else if (playerTags.Contains("Client"))
 			{
@@ -83,7 +82,7 @@ namespace CodeSmile.Netcode.Components
 				NetworkLog.LogInfo("Multiplayer Playmode => Start CLIENT");
 				await Network.StartClient();
 
-				NetworkLog.LogInfo("Multiplayer Playmode => CLIENT connected ...");
+				NetworkLog.LogInfo("Multiplayer Playmode => CLIENT did connect ...");
 			}
 
 			TaskPerformed();
