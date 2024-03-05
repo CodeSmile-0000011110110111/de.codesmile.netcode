@@ -18,7 +18,7 @@ namespace CodeSmile.Netcode.Components
 		{
 			base.OnNetworkSpawn();
 
-			if (IsOwner)
+			if (IsServer)
 				StartCoroutine(DespawnWhenTimeOut());
 		}
 
