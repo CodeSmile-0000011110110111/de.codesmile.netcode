@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Components;
+using CodeSmile.SceneTools;
 using System;
 using UnityEngine;
 #if UNITY_EDITOR

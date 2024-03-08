@@ -2,6 +2,8 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Components;
+using CodeSmile.Netcode.Extensions;
+using CodeSmile.SceneTools;
 using System;
 using System.Threading.Tasks;
 using Unity.Netcode;

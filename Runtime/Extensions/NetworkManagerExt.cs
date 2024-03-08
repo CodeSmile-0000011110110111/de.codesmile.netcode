@@ -5,7 +5,7 @@ using System;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 
-namespace CodeSmile.Netcode
+namespace CodeSmile.Netcode.Extensions
 {
 	public static class NetworkManagerExt
 	{
