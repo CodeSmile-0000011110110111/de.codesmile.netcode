@@ -1,50 +1,58 @@
 ﻿// Copyright (C) 2021-2024 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.SceneTools;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace CodeSmile.Netcode.Components
 {
 	[DisallowMultipleComponent]
 	public class NetworkSessionState : MonoBehaviour
 	{
-		[SerializeField] private SceneReference m_LoadSceneWhenServerStarts;
-		[SerializeField] private SceneReference m_LoadSceneWhenServerStops;
-		[SerializeField] private SceneReference m_LoadSceneWhenClientDisconnects;
-
 		private readonly Dictionary<UInt64, Byte[]> m_ClientPayloads = new();
+
+		private Boolean m_CallbacksRegistered;
+
 		public IReadOnlyDictionary<UInt64, Byte[]> ClientPayloads => m_ClientPayloads;
 
-		private void OnValidate()
+		private void Start() => RegisterCallbacks();
+
+		private void OnEnable() => RegisterCallbacks();
+
+		private void OnDisable() => UnregisterCallbacks();
+
+		private void RegisterCallbacks()
 		{
-			m_LoadSceneWhenServerStarts?.OnValidate();
-			m_LoadSceneWhenServerStops?.OnValidate();
-			m_LoadSceneWhenClientDisconnects?.OnValidate();
+			var netMan = NetworkManager.Singleton;
+			if (netMan != null && m_CallbacksRegistered == false)
+			{
+				m_CallbacksRegistered = true;
+				netMan.OnServerStarted += OnServerStarted;
+				netMan.OnServerStopped += OnServerStopped;
+				netMan.OnClientStarted += OnClientStarted;
+				netMan.OnClientStopped += OnClientStopped;
+				netMan.OnConnectionEvent += OnConnectionEvent;
+				netMan.OnTransportFailure += OnTransportFailure;
+				netMan.ConnectionApprovalCallback += OnConnectionApprovalRequest;
+			}
 		}
 
-		// Important to init Session State in OnEnable since that runs before Start.
-		// This guarantees that Session State hooks into NetworkManager events before NM starts listening.
-		// Note that in Awake() the NetworkManager.Singleton is generally still null.
-		private void OnEnable()
+		private void UnregisterCallbacks()
 		{
-			if (String.IsNullOrWhiteSpace(m_LoadSceneWhenServerStarts?.SceneName))
-				throw new ArgumentException($"Server start scene not assigned in {nameof(NetworkSessionState)}");
-
-			// since the session state is not supposed to be destroyed until application quits,
-			// there is no need to unsubscribe the event handlers
 			var netMan = NetworkManager.Singleton;
-			netMan.OnServerStarted += OnServerStarted;
-			netMan.OnServerStopped += OnServerStopped;
-			netMan.OnClientStarted += OnClientStarted;
-			netMan.OnClientStopped += OnClientStopped;
-			netMan.OnConnectionEvent += OnConnectionEvent;
-			netMan.OnTransportFailure += OnTransportFailure;
-			netMan.ConnectionApprovalCallback = OnConnectionApprovalRequest;
+			if (netMan != null)
+			{
+				m_CallbacksRegistered = false;
+				netMan.OnServerStarted -= OnServerStarted;
+				netMan.OnServerStopped -= OnServerStopped;
+				netMan.OnClientStarted -= OnClientStarted;
+				netMan.OnClientStopped -= OnClientStopped;
+				netMan.OnConnectionEvent -= OnConnectionEvent;
+				netMan.OnTransportFailure -= OnTransportFailure;
+				netMan.ConnectionApprovalCallback -= OnConnectionApprovalRequest;
+			}
 		}
 
 		private void OnConnectionApprovalRequest(NetworkManager.ConnectionApprovalRequest request,
@@ -57,7 +65,8 @@ namespace CodeSmile.Netcode.Components
 			var payload = request.Payload;
 			m_ClientPayloads[clientId] = payload;
 
-			NetworkLog.LogInfo($"=> ConnectionApprovalRequest: Client {clientId}, payload: '{payload?.GetString()}' ({payload.Length} bytes)");
+			NetworkLog.LogInfo($"=> ConnectionApprovalRequest: Client {clientId}, " +
+			                   $"payload: '{payload?.GetString()}' ({payload.Length} bytes)");
 
 			response.Approved = true;
 			response.Reason = $"{nameof(NetworkSessionState)} always approves";
@@ -70,19 +79,6 @@ namespace CodeSmile.Netcode.Components
 
 			var netSceneManager = NetworkManager.Singleton.SceneManager;
 			netSceneManager.OnSceneEvent += OnServerSceneEvent;
-
-			netSceneManager.LoadScene(m_LoadSceneWhenServerStarts.SceneName, LoadSceneMode.Single);
-		}
-
-		private void OnServerStopped(Boolean isHost)
-		{
-			NetworkLog.LogInfo($"=> {(isHost ? "Host Server" : "Server")} Stopped");
-
-			if (isHost == false && m_LoadSceneWhenServerStops != null)
-			{
-				NetworkLog.LogInfo($"=> Loading offline scene: {m_LoadSceneWhenServerStops.SceneName}");
-				SceneManager.LoadScene(m_LoadSceneWhenServerStarts.SceneName, LoadSceneMode.Single);
-			}
 		}
 
 		private void OnClientStarted()
@@ -93,16 +89,11 @@ namespace CodeSmile.Netcode.Components
 			netSceneManager.OnSceneEvent += OnClientSceneEvent;
 		}
 
-		private void OnClientStopped(Boolean isHost)
-		{
-			NetworkLog.LogInfo($"=> {(isHost ? "Host Client" : "Client")} Stopped");
+		private void OnServerStopped(Boolean isHost) =>
+			NetworkLog.LogInfo($"=> {(isHost ? "Server (Host)" : "Server")} Stopped");
 
-			if (m_LoadSceneWhenClientDisconnects != null)
-			{
-				NetworkLog.LogInfo($"=> Loading offline scene: {m_LoadSceneWhenServerStops.SceneName}");
-				SceneManager.LoadScene(m_LoadSceneWhenClientDisconnects.SceneName, LoadSceneMode.Single);
-			}
-		}
+		private void OnClientStopped(Boolean isHost) =>
+			NetworkLog.LogInfo($"=> {(isHost ? "Client (Host)" : "Client")} Stopped");
 
 		private void OnServerSceneEvent(SceneEvent sceneEvent)
 		{

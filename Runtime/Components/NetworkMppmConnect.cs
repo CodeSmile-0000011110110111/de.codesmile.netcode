@@ -2,10 +2,10 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Components;
-using CodeSmile.SceneTools;
 using System;
 using UnityEngine;
 #if UNITY_EDITOR
+using CodeSmile.SceneTools;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +26,32 @@ namespace CodeSmile.Netcode.Components
 		private static readonly String k_UseEasyRelayIntegrationKey =
 			"NetworkManagerUI_UseRelay_" + Application.dataPath.GetHashCode();
 
+		[Tooltip("MPPM errors on shutdown can leave the main editor state paused with the pause button not visually pressed. " +
+		         "Starting playmode with virtual players in this case will have virtual players seem frozen. " +
+		         "By setting this true, entering playmode will unpause the game for all virtual players.")]
+		[SerializeField] private Boolean m_AutoUnpauseOnEnterPlaymode = true;
+
 #if UNITY_EDITOR
+		private void OnEnable() => EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+
+		private void OnDisable() => EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+
+		private void OnPlayModeStateChanged(PlayModeStateChange state)
+		{
+			// MPPM workaround to prevent final scene change when exiting playmode, this may cause virtual players
+			// to throw "This cannot be used during play mode" errors as they try to load a scene during shutdown
+			// due to the delay of sending scene change messages to virtual clients
+			if (m_AutoUnpauseOnEnterPlaymode && state == PlayModeStateChange.EnteredPlayMode)
+			{
+				if (EditorApplication.isPaused)
+				{
+					EditorApplication.isPaused = false;
+					Debug.LogWarning($"{nameof(NetworkMppmConnect)}: EditorApplication.isPaused was true entering " +
+					                 "playmode => auto unpaused to let virtual players run");
+				}
+			}
+		}
+
 		private void Start() => TryStartMultiplayerPlaymode();
 
 		private async void TryStartMultiplayerPlaymode()
@@ -67,7 +92,7 @@ namespace CodeSmile.Netcode.Components
 			else if (playerTags.Contains("Client"))
 			{
 				SceneAutoLoader.DestroyAll(); // clients auto-load scene when connected
-				await Task.Delay(500); // ensure a client never starts before the host
+				await Task.Delay(250); // ensure a virtual client never starts before the host
 
 				Network.UseRelayService = await WaitForEditorRelayEnabledFile();
 				if (Network.UseRelayService)

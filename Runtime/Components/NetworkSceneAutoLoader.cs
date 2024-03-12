@@ -11,11 +11,12 @@ using UnityEngine.SceneManagement;
 namespace CodeSmile.Netcode.Components
 {
 	[DisallowMultipleComponent]
-	public class NetworkSceneLoadOnStartStop : MonoBehaviour
+	public class NetworkSceneAutoLoader : MonoBehaviour
 	{
 		[SerializeField] private SceneReference m_LoadWhenServerStarts;
 		[SerializeField] private SceneReference m_LoadWhenServerStops;
 		[SerializeField] private SceneReference m_LoadWhenHostOrClientDisconnects;
+		private Boolean m_CallbacksRegistered;
 
 		private void OnValidate()
 		{
@@ -24,21 +25,30 @@ namespace CodeSmile.Netcode.Components
 			m_LoadWhenHostOrClientDisconnects?.OnValidate();
 		}
 
-		private void Start()
-		{
-			Debug.Log("NetworkSceneLoad ENABLE");
+		private void Start() => RegisterCallbacks();
 
+		private void OnEnable() => RegisterCallbacks();
+
+		private void OnDisable() => UnregisterCallbacks();
+
+		private void RegisterCallbacks()
+		{
 			var netMan = NetworkManager.Singleton;
-			netMan.OnServerStarted += OnServerStarted;
-			netMan.OnServerStopped += OnServerStopped;
-			netMan.OnClientStopped += OnClientStopped;
+			if (netMan != null && m_CallbacksRegistered == false)
+			{
+				m_CallbacksRegistered = true;
+				netMan.OnServerStarted += OnServerStarted;
+				netMan.OnServerStopped += OnServerStopped;
+				netMan.OnClientStopped += OnClientStopped;
+			}
 		}
 
-		private void OnDisable()
+		private void UnregisterCallbacks()
 		{
 			var netMan = NetworkManager.Singleton;
 			if (netMan != null)
 			{
+				m_CallbacksRegistered = false;
 				netMan.OnServerStarted -= OnServerStarted;
 				netMan.OnServerStopped -= OnServerStopped;
 				netMan.OnClientStopped -= OnClientStopped;

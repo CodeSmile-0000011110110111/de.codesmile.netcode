@@ -50,14 +50,18 @@ namespace CodeSmile.Netcode
 
 		public static void Disconnect()
 		{
-			var netMan = NetworkManager.Singleton;
-			if (netMan != null && netMan.IsListening)
-				netMan.Shutdown();
+			var networkManager = NetworkManager.Singleton;
+			if (networkManager != null && networkManager.IsListening)
+				networkManager.Shutdown();
 		}
 
 		// TODO: use the NetworkConfig class
 		private static async Task StartWithMode(NetworkMode mode)
 		{
+			var networkManager = NetworkManager.Singleton;
+			if (networkManager == null)
+				throw new NullReferenceException("NetworkManager.Singleton is null");
+
 			try
 			{
 				if (UseRelayService)
@@ -69,11 +73,11 @@ namespace CodeSmile.Netcode
 				}
 
 				if (mode == NetworkMode.Server)
-					NetworkManager.Singleton.StartServer();
+					networkManager.StartServer();
 				else if (mode == NetworkMode.Host)
-					NetworkManager.Singleton.StartHost();
+					networkManager.StartHost();
 				else
-					NetworkManager.Singleton.StartClient();
+					networkManager.StartClient();
 			}
 			catch (Exception e)
 			{
