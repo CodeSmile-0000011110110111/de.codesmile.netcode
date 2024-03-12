@@ -77,16 +77,16 @@ namespace CodeSmile.Netcode.Components
 		{
 			NetworkLog.LogInfo("=> Server Started");
 
-			var netSceneManager = NetworkManager.Singleton.SceneManager;
-			netSceneManager.OnSceneEvent += OnServerSceneEvent;
+			// var netSceneManager = NetworkManager.Singleton.SceneManager;
+			// netSceneManager.OnSceneEvent += OnServerSceneEvent;
 		}
 
 		private void OnClientStarted()
 		{
 			NetworkLog.LogInfo("=> Client Started");
 
-			var netSceneManager = NetworkManager.Singleton.SceneManager;
-			netSceneManager.OnSceneEvent += OnClientSceneEvent;
+			// var netSceneManager = NetworkManager.Singleton.SceneManager;
+			// netSceneManager.OnSceneEvent += OnClientSceneEvent;
 		}
 
 		private void OnServerStopped(Boolean isHost) =>
@@ -97,12 +97,12 @@ namespace CodeSmile.Netcode.Components
 
 		private void OnServerSceneEvent(SceneEvent sceneEvent)
 		{
-			// Debug.Log($"=> Server: {ToString(sceneEvent)}");
+			//NetworkLog.LogInfo($"=> Server: {ToString(sceneEvent)}");
 		}
 
 		private void OnClientSceneEvent(SceneEvent sceneEvent)
 		{
-			// Debug.Log($"=> Client: {ToString(sceneEvent)}");
+			//NetworkLog.LogInfo($"=> Client: {ToString(sceneEvent)}");
 		}
 
 		private void OnConnectionEvent(NetworkManager netMan, ConnectionEventData data) =>
