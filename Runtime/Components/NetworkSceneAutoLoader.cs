@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2024 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile.Netcode.Extensions;
 using CodeSmile.SceneTools;
 using System;
 using System.Collections;
@@ -25,9 +26,7 @@ namespace CodeSmile.Netcode.Components
 			m_LoadWhenHostOrClientDisconnects?.OnValidate();
 		}
 
-		private void Start() => RegisterCallbacks();
-
-		private void OnEnable() => RegisterCallbacks();
+		private void OnEnable() => NetworkManagerExt.InvokeWhenSingletonReady(RegisterCallbacks);
 
 		private void OnDisable() => UnregisterCallbacks();
 

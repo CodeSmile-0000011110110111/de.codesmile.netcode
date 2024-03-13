@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2024 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile.Netcode.Extensions;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -17,9 +18,7 @@ namespace CodeSmile.Netcode.Components
 
 		public IReadOnlyDictionary<UInt64, Byte[]> ClientPayloads => m_ClientPayloads;
 
-		private void Start() => RegisterCallbacks();
-
-		private void OnEnable() => RegisterCallbacks();
+		private void OnEnable() => NetworkManagerExt.InvokeWhenSingletonReady(RegisterCallbacks);
 
 		private void OnDisable() => UnregisterCallbacks();
 
