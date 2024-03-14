@@ -23,6 +23,7 @@ namespace CodeSmile.Netcode.Components
 
 		private Single m_InterpolationStartTime;
 		private Single m_InterpolationStartAngle;
+		private bool m_NeedsAngleUpdate;
 
 		private void FixedUpdate()
 		{
@@ -34,22 +35,30 @@ namespace CodeSmile.Netcode.Components
 		{
 			if (!IsOwner)
 			{
-				var angle = m_Angle.Value * CompressionFactor;
-				if (m_Interpolate)
+				if (m_NeedsAngleUpdate)
 				{
-					var time = (Time.time - m_InterpolationStartTime) / m_InterpolationTime;
-					angle = Mathf.LerpAngle(m_InterpolationStartAngle, angle, time);
+					m_NeedsAngleUpdate = false;
+
+					var angle = m_Angle.Value * CompressionFactor;
+
+					if (m_Interpolate)
+					{
+						var time = (Time.time - m_InterpolationStartTime) / m_InterpolationTime;
+						angle = Mathf.LerpAngle(m_InterpolationStartAngle, angle, time);
+
+						m_NeedsAngleUpdate = time < 1f;
+					}
+
+					var axisRotation = Quaternion.Euler(
+						m_SyncAxis == AngleAxis.X ? angle : 0f,
+						m_SyncAxis == AngleAxis.Y ? angle : 0f,
+						m_SyncAxis == AngleAxis.Z ? angle : 0f);
+
+					if (m_LocalSpace)
+						transform.localRotation = axisRotation;
+					else
+						transform.rotation = axisRotation;
 				}
-
-				var axisRotation = Quaternion.Euler(
-					m_SyncAxis == AngleAxis.X ? angle : 0f,
-					m_SyncAxis == AngleAxis.Y ? angle : 0f,
-					m_SyncAxis == AngleAxis.Z ? angle : 0f);
-
-				if (m_LocalSpace)
-					transform.localRotation = axisRotation;
-				else
-					transform.rotation = axisRotation;
 			}
 		}
 
@@ -78,6 +87,7 @@ namespace CodeSmile.Netcode.Components
 
 		private void OnAngleChanged(Byte previousAngle, Byte newAngle)
 		{
+			m_NeedsAngleUpdate = true;
 			m_InterpolationStartTime = Time.time;
 			m_InterpolationStartAngle = GetSyncAngle();
 		}
