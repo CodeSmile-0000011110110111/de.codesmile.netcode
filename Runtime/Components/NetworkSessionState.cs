@@ -72,37 +72,14 @@ namespace CodeSmile.Netcode.Components
 			response.CreatePlayerObject = true;
 		}
 
-		private void OnServerStarted()
-		{
-			NetworkLog.LogInfo("=> Server Started");
-
-			// var netSceneManager = NetworkManager.Singleton.SceneManager;
-			// netSceneManager.OnSceneEvent += OnServerSceneEvent;
-		}
-
-		private void OnClientStarted()
-		{
-			NetworkLog.LogInfo("=> Client Started");
-
-			// var netSceneManager = NetworkManager.Singleton.SceneManager;
-			// netSceneManager.OnSceneEvent += OnClientSceneEvent;
-		}
+		private void OnServerStarted() => NetworkLog.LogInfo("=> Server Started");
+		private void OnClientStarted() => NetworkLog.LogInfo("=> Client Started");
 
 		private void OnServerStopped(Boolean isHost) =>
 			NetworkLog.LogInfo($"=> {(isHost ? "Server (Host)" : "Server")} Stopped");
 
 		private void OnClientStopped(Boolean isHost) =>
 			NetworkLog.LogInfo($"=> {(isHost ? "Client (Host)" : "Client")} Stopped");
-
-		private void OnServerSceneEvent(SceneEvent sceneEvent)
-		{
-			//NetworkLog.LogInfo($"=> Server: {ToString(sceneEvent)}");
-		}
-
-		private void OnClientSceneEvent(SceneEvent sceneEvent)
-		{
-			//NetworkLog.LogInfo($"=> Client: {ToString(sceneEvent)}");
-		}
 
 		private void OnConnectionEvent(NetworkManager netMan, ConnectionEventData data) =>
 			NetworkLog.LogInfo($"=> Connection Event: {data.EventType}, clientId={data.ClientId}");
@@ -114,8 +91,5 @@ namespace CodeSmile.Netcode.Components
 			if (NetworkManager.Singleton.ConnectedClients.Count == 0)
 				m_ClientPayloads.Clear();
 		}
-
-		private String ToString(SceneEvent sceneEvent) =>
-			$"'{sceneEvent.SceneName}' {sceneEvent.LoadSceneMode}Scene{sceneEvent.SceneEventType} (client: {sceneEvent.ClientId})";
 	}
 }
