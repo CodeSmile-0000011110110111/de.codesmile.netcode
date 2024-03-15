@@ -14,7 +14,7 @@ namespace CodeSmile.Netcode.Extensions
 {
 	public static class NetworkManagerExt
 	{
-		private static List<Action> OnSingletonReadyCallbacks;
+		private static HashSet<Action> OnSingletonReadyCallbacks;
 
 		/// <summary>
 		///     Shorthand for calling: NetworkManager.Singleton.GetComponent<UnityTransport>()
@@ -29,11 +29,11 @@ namespace CodeSmile.Netcode.Extensions
 		/// </summary>
 		/// <example>
 		///     Usage: call this in either the Awake or OnEnable method. In Start, NetworkManager.Singleton is already non-null.
-		///		The callback need only be used to subscribe to NetworkManager events that may be raised instantly after
-		///		StartServer, StartHost or StartClient are called from a component's OnEnable method.
-		///		This mainly concerns the OnServerStarted and OnClientStarted events.
+		///     The callback need only be used to subscribe to NetworkManager events that may be raised instantly after
+		///     StartServer, StartHost or StartClient are called from a component's OnEnable method.
+		///     This mainly concerns the OnServerStarted and OnClientStarted events.
 		///     By using this event handler you do not need to put scripts in the Script Execution Order nor worry about
-		///		component execution order shifting since the order of component execution is not guaranteed.
+		///     component execution order shifting since the order of component execution is not guaranteed.
 		/// </example>
 		/// <remarks>
 		///     The callback action will be invoked directly in case NetworkManager.Singleton is already non-null.
@@ -58,7 +58,7 @@ namespace CodeSmile.Netcode.Extensions
 			// one-time init of list and singleton ready event
 			if (OnSingletonReadyCallbacks == null)
 			{
-				OnSingletonReadyCallbacks = new List<Action>();
+				OnSingletonReadyCallbacks = new HashSet<Action>();
 				Subscribe(GetSingletonReadyEvent(), InvokeSingletonReadyCallbacksOnce);
 			}
 
