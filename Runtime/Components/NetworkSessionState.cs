@@ -12,9 +12,9 @@ namespace CodeSmile.Netcode.Components
 	[DisallowMultipleComponent]
 	public class NetworkSessionState : MonoBehaviour
 	{
-		private readonly Dictionary<UInt64, Byte[]> m_ClientPayloads = new();
+		[SerializeField] private Int32 m_MaxPayloadBytes = 1024;
 
-		private Boolean m_CallbacksRegistered;
+		private readonly Dictionary<UInt64, Byte[]> m_ClientPayloads = new();
 
 		public IReadOnlyDictionary<UInt64, Byte[]> ClientPayloads => m_ClientPayloads;
 
@@ -22,12 +22,27 @@ namespace CodeSmile.Netcode.Components
 
 		private void OnDisable() => UnregisterCallbacks();
 
+		private Boolean PayloadSizeTooBig(NetworkManager.ConnectionApprovalRequest request,
+			NetworkManager.ConnectionApprovalResponse response)
+		{
+			var payloadLength = request.Payload.Length;
+			var tooBig = payloadLength > m_MaxPayloadBytes;
+			if (tooBig)
+			{
+				response.Approved = false;
+				response.Reason = "payload too big";
+				NetworkLog.LogWarning(
+					$"possible DOS attack by client {request.ClientNetworkId}, payload too big: {payloadLength}");
+			}
+
+			return tooBig;
+		}
+
 		private void RegisterCallbacks()
 		{
 			var netMan = NetworkManager.Singleton;
-			if (netMan != null && m_CallbacksRegistered == false)
+			if (netMan != null)
 			{
-				m_CallbacksRegistered = true;
 				netMan.OnServerStarted += OnServerStarted;
 				netMan.OnServerStopped += OnServerStopped;
 				netMan.OnClientStarted += OnClientStarted;
@@ -43,7 +58,6 @@ namespace CodeSmile.Netcode.Components
 			var netMan = NetworkManager.Singleton;
 			if (netMan != null)
 			{
-				m_CallbacksRegistered = false;
 				netMan.OnServerStarted -= OnServerStarted;
 				netMan.OnServerStopped -= OnServerStopped;
 				netMan.OnClientStarted -= OnClientStarted;
@@ -57,6 +71,9 @@ namespace CodeSmile.Netcode.Components
 		private void OnConnectionApprovalRequest(NetworkManager.ConnectionApprovalRequest request,
 			NetworkManager.ConnectionApprovalResponse response)
 		{
+			if (PayloadSizeTooBig(request, response))
+				return;
+
 			// needs to be done here since approval request for host runs before OnServerStarted!
 			ClearPayloadsOnFirstConnection();
 
@@ -68,7 +85,7 @@ namespace CodeSmile.Netcode.Components
 			                   $"payload: '{payload?.GetString()}' ({payload.Length} bytes)");
 
 			response.Approved = true;
-			response.Reason = $"{nameof(NetworkSessionState)} always approves";
+			response.Reason = $"{nameof(NetworkSessionState)} approves";
 			response.CreatePlayerObject = true;
 		}
 
