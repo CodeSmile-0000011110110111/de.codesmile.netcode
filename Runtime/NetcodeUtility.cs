@@ -17,7 +17,7 @@ namespace CodeSmile.Netcode
 	///     Launching Server/Host/Client with optional Relay allocation.
 	///     Set the static public properties before calling the Server/Host/Client methods.
 	/// </summary>
-	public static partial class Network
+	public static partial class NetcodeUtility
 	{
 		public static UnityTransport Transport => NetworkManager.Singleton.GetComponent<UnityTransport>();
 

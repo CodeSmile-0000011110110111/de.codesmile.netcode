@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CodeSmile.Netcode
 {
-	public static partial class Network
+	public static partial class NetcodeUtility
 	{
 		/// <summary>
 		///     Set to true before starting to use Unity's Relay service for connections.
