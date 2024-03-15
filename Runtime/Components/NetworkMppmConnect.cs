@@ -7,16 +7,22 @@ using System;
 using UnityEngine;
 #if UNITY_EDITOR
 using CodeSmile.SceneTools;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.Multiplayer.Playmode;
 using Unity.Netcode;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 #endif
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	/// Uses Virtual Player tags to determine what mode each player and main editor to put into when entering playmode.
+	/// Recognized tags (case sensitive!) are: "Server", "Host", "Client"
+	/// </summary>
 	[DisallowMultipleComponent]
 	public class NetworkMppmConnect : OneTimeTaskBehaviour
 	{
@@ -29,7 +35,8 @@ namespace CodeSmile.Netcode.Components
 
 		[Tooltip("MPPM errors on shutdown can leave the main editor state paused with the pause button not visually pressed. " +
 		         "Starting playmode with virtual players in this case will have virtual players seem frozen. " +
-		         "By setting this true, entering playmode will unpause the game for all virtual players.")]
+		         "By setting this true, entering playmode will unpause the game for all virtual players. " +
+		         "Uncheck if you intentionally want to start paused for debugging purposes.")]
 		[SerializeField] private Boolean m_AutoUnpauseOnEnterPlaymode = true;
 
 #if UNITY_EDITOR
@@ -42,9 +49,9 @@ namespace CodeSmile.Netcode.Components
 			// MPPM workaround to prevent final scene change when exiting playmode, this may cause virtual players
 			// to throw "This cannot be used during play mode" errors as they try to load a scene during shutdown
 			// due to the delay of sending scene change messages to virtual clients
-			if (m_AutoUnpauseOnEnterPlaymode && state == PlayModeStateChange.EnteredPlayMode)
+			if (state == PlayModeStateChange.EnteredPlayMode)
 			{
-				if (EditorApplication.isPaused)
+				if (m_AutoUnpauseOnEnterPlaymode && EditorApplication.isPaused)
 				{
 					EditorApplication.isPaused = false;
 					Debug.LogWarning($"{nameof(NetworkMppmConnect)}: EditorApplication.isPaused was true entering " +
