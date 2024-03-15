@@ -2,9 +2,9 @@
   "name": "de.codesmile.netcode",
   "displayName": "CodeSmile Netcode",
   "description": "Netcode for GameObjects and Unity Gaming Services implementations, tools and utilities.",
-  "version": "0.1.0",
-  "unity": "2022.3",
-  "unityRelease": "0f1",
+  "version": "1.0.0",
+  "unity": "6000.0",
+  "unityRelease": "0b11",
   "author": {
     "name": "Steffen Itterheim aka 'CodeSmile' (Unity MVP, Self-Employed)",
     "email": "steffen@steffenitterheim.de",
