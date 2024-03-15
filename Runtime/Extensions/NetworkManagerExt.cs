@@ -28,14 +28,15 @@ namespace CodeSmile.Netcode.Extensions
 		///     Will continue to work even if OnSingletonReady may become public in the future.
 		/// </summary>
 		/// <example>
-		///     Usage: call this in either the Awake or OnEnable method. The callback should only be used to subscribe to
-		///     NetworkManager events raised early such as OnServerStarted or OnClientStarted which you may possibly miss
-		///     depending on the event execution order.
+		///     Usage: call this in either the Awake or OnEnable method. In Start, NetworkManager.Singleton is already non-null.
+		///		The callback need only be used to subscribe to NetworkManager events that may be raised instantly after
+		///		StartServer, StartHost or StartClient are called from a component's OnEnable method.
+		///		This mainly concerns the OnServerStarted and OnClientStarted events.
+		///     By using this event handler you do not need to put scripts in the Script Execution Order nor worry about
+		///		component execution order shifting since the order of component execution is not guaranteed.
 		/// </example>
 		/// <remarks>
-		///     The callback action will be invoked either right away in case NetworkManager.Singleton is already non-null,
-		///     otherwise it will be called the moment it is assigned via NetworkManager's OnEnable method.
-		///     By using this method you do not need to rely on putting scripts in the Script Execution Order.
+		///     The callback action will be invoked directly in case NetworkManager.Singleton is already non-null.
 		/// </remarks>
 		/// <remarks>
 		///     Issue request to make OnSingletonReady public:
