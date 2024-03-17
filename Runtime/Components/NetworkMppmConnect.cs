@@ -2,26 +2,23 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Components;
-using CodeSmile.Netcode.Extensions;
 using System;
 using UnityEngine;
 #if UNITY_EDITOR
 using CodeSmile.SceneTools;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.Multiplayer.Playmode;
 using Unity.Netcode;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 #endif
 
 namespace CodeSmile.Netcode.Components
 {
 	/// <summary>
-	/// Uses Virtual Player tags to determine what mode each player and main editor to put into when entering playmode.
-	/// Recognized tags (case sensitive!) are: "Server", "Host", "Client"
+	///     Uses Virtual Player tags to determine what mode each player and main editor to put into when entering playmode.
+	///     Recognized tags (case sensitive!) are: "Server", "Host", "Client"
 	/// </summary>
 	[DisallowMultipleComponent]
 	public class NetworkMppmConnect : OneTimeTaskBehaviour
@@ -38,6 +35,10 @@ namespace CodeSmile.Netcode.Components
 		         "By setting this true, entering playmode will unpause the game for all virtual players. " +
 		         "Uncheck if you intentionally want to start paused for debugging purposes.")]
 		[SerializeField] private Boolean m_AutoUnpauseOnEnterPlaymode = true;
+
+		[SerializeField] private String m_ServerTag = "Server";
+		[SerializeField] private String m_HostTag = "Host";
+		[SerializeField] private String m_ClientTag = "Client";
 
 #if UNITY_EDITOR
 		private void OnEnable() => EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
@@ -64,9 +65,12 @@ namespace CodeSmile.Netcode.Components
 
 		private async void TryStartMultiplayerPlaymode()
 		{
+			CheckInvalidTagAssignment();
+
 			var playerTags = CurrentPlayer.ReadOnlyTags();
+
 			var useRelay = IsEditorRelayEnabled();
-			if (playerTags.Contains("Server"))
+			if (playerTags.Contains(m_ServerTag))
 			{
 				SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
 				DeleteRelayJoinCodeFile();
@@ -76,12 +80,16 @@ namespace CodeSmile.Netcode.Components
 				NetworkLog.LogInfo("Multiplayer Playmode => Start SERVER");
 
 				await NetcodeUtility.StartServer();
+
+				if (NetworkManager.Singleton.IsServer == false)
+					throw new Exception("==> MPPM: failed to start server! Check if multiple players have the Host/Server tag assigned.");
+
 				if (useRelay)
 					WriteRelayJoinCodeFile();
 
 				NetworkLog.LogInfo("Multiplayer Playmode => SERVER did start ...");
 			}
-			else if (playerTags.Contains("Host"))
+			else if (playerTags.Contains(m_HostTag))
 			{
 				SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
 				DeleteRelayJoinCodeFile();
@@ -92,12 +100,15 @@ namespace CodeSmile.Netcode.Components
 
 				await NetcodeUtility.StartHost();
 
+				if (NetworkManager.Singleton.IsHost == false)
+					throw new Exception("==> MPPM: failed to start host! Check if multiple players have the Host/Server tag assigned.");
+
 				if (useRelay)
 					WriteRelayJoinCodeFile();
 
 				NetworkLog.LogInfo("Multiplayer Playmode => HOST did start ...");
 			}
-			else if (playerTags.Contains("Client"))
+			else if (playerTags.Contains(m_ClientTag))
 			{
 				SceneAutoLoader.DestroyAll(); // clients auto-load scene when connected
 				await Task.Delay(250); // ensure a virtual client never starts before the host
@@ -116,10 +127,24 @@ namespace CodeSmile.Netcode.Components
 				NetworkLog.LogInfo("Multiplayer Playmode => Start CLIENT");
 				await NetcodeUtility.StartClient();
 
-				NetworkLog.LogInfo("Multiplayer Playmode => CLIENT did connect ...");
+				if (NetworkManager.Singleton.IsClient == false)
+					throw new Exception("==> MPPM: failed to start client!");
+
+				NetworkLog.LogInfo("Multiplayer Playmode => CLIENT connecting ...");
 			}
 
 			TaskPerformed();
+		}
+
+		private void CheckInvalidTagAssignment()
+		{
+			var tags = CurrentPlayer.ReadOnlyTags();
+			var tagCount = tags.Contains(m_ServerTag) ? 1 : 0;
+			tagCount += tags.Contains(m_HostTag) ? 1 : 0;
+			tagCount += tags.Contains(m_ClientTag) ? 1 : 0;
+
+			if (tagCount > 1)
+				throw new ArgumentException("==> MPPM: multiple conflicting tags assigned to player");
 		}
 
 		private void SetEditorRelayEnabled(Boolean enabled)
