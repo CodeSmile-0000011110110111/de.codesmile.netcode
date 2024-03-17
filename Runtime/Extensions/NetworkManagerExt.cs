@@ -19,7 +19,7 @@ namespace CodeSmile.Netcode.Extensions
 		/// <summary>
 		///     Shorthand for calling: NetworkManager.Singleton.GetComponent<UnityTransport>()
 		/// </summary>
-		/// <param name="netMan"></param>
+		/// <returns></returns>
 		/// <returns>The UnityTransport component.</returns>
 		public static UnityTransport GetTransport(this NetworkManager netMan) => netMan.GetComponent<UnityTransport>();
 

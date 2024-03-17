@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2024 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile.Netcode.Extensions;
 using System;
 using System.Threading.Tasks;
 using Unity.Netcode;
@@ -19,7 +20,7 @@ namespace CodeSmile.Netcode
 	/// </summary>
 	public static partial class NetcodeUtility
 	{
-		public static UnityTransport Transport => NetworkManager.Singleton.GetComponent<UnityTransport>();
+		public static UnityTransport Transport => NetworkManager.Singleton.GetTransport();
 
 		/// <summary>
 		///     Start an isolated network session as host, disallowing incoming connections.
