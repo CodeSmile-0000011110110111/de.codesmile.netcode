@@ -7,6 +7,7 @@ using CodeSmile.SceneTools;
 using System;
 using System.Threading.Tasks;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 #if UNITY_SERVER
 using Unity.Netcode;

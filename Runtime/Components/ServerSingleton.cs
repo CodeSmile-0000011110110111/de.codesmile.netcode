@@ -18,7 +18,7 @@ namespace CodeSmile.Netcode.Components
 			base.OnNetworkSpawn();
 
 			if (IsServer == false)
-				throw new InvalidOperationException("ServerSingleton should only spawn on Server");
+				throw new InvalidOperationException("ServerSingleton must only spawn on Server");
 
 			s_Instance = this as T;
 		}
