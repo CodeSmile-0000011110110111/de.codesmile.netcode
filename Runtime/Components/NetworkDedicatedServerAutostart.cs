@@ -16,8 +16,12 @@ using Unity.Netcode.Transports.UTP;
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	///     (Dedicated Server build only) Starts the dedicated server session.
+	///     Sets the server listen address to listen to all incoming connections. Disables relay, even if enabled.
+	/// </summary>
 	[DisallowMultipleComponent]
-	public class NetworkServerAutostart : OneTimeTaskBehaviour
+	public class NetworkDedicatedServerAutostart : OneTimeTaskBehaviour
 	{
 		[SerializeField] private UInt16 m_Port = 7778;
 

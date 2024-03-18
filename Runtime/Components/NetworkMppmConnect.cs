@@ -3,6 +3,7 @@
 
 using CodeSmile.Components;
 using System;
+using UnityEditor;
 using UnityEngine;
 #if UNITY_EDITOR
 using CodeSmile.SceneTools;
@@ -17,9 +18,14 @@ using UnityEditor;
 namespace CodeSmile.Netcode.Components
 {
 	/// <summary>
-	///     Uses Virtual Player tags to determine what mode each player and main editor to put into when entering playmode.
-	///     Recognized tags (case sensitive!) are: "Server", "Host", "Client"
+	///     Multiplayer testing in playmode! Handles start and shutdown of 'Multiplayer Playmode' (MPPM) editor & virtual
+	///     players. Player tags determine what role each player is supposed to launch in.
 	/// </summary>
+	/// <remarks>
+	///     Recognized tags (case sensitive!) are editable, defaults: "Server", "Host", "Client".
+	///     Only one active player should have either the Server or Host tag.
+	///     If a player has no tags that player will not start a network session.
+	/// </remarks>
 	[DisallowMultipleComponent]
 	public class NetworkMppmConnect : OneTimeTaskBehaviour
 	{
@@ -82,7 +88,8 @@ namespace CodeSmile.Netcode.Components
 				await NetcodeUtility.StartServer();
 
 				if (NetworkManager.Singleton.IsServer == false)
-					throw new Exception("==> MPPM: failed to start server! Check if multiple players have the Host/Server tag assigned.");
+					throw new Exception(
+						"==> MPPM: failed to start server! Check if multiple players have the Host/Server tag assigned.");
 
 				if (useRelay)
 					WriteRelayJoinCodeFile();
@@ -101,7 +108,8 @@ namespace CodeSmile.Netcode.Components
 				await NetcodeUtility.StartHost();
 
 				if (NetworkManager.Singleton.IsHost == false)
-					throw new Exception("==> MPPM: failed to start host! Check if multiple players have the Host/Server tag assigned.");
+					throw new Exception(
+						"==> MPPM: failed to start host! Check if multiple players have the Host/Server tag assigned.");
 
 				if (useRelay)
 					WriteRelayJoinCodeFile();

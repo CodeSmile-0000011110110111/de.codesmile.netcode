@@ -6,24 +6,29 @@ using CodeSmile.SceneTools;
 using System;
 using System.Collections;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	///     Single-Loads a scene when server starts or stops or client disconnects.
+	///     This moves clients into the online scene when networking starts and
+	///     moves clients to the offline scene when they disconnect.
+	/// </summary>
 	[DisallowMultipleComponent]
-	public class NetworkSceneAutoLoader : MonoBehaviour
+	public class NetworkSceneAutoLoader : NetworkBehaviour
 	{
+		[Tooltip("(Server / Host) Load this network scene when server starts.")]
 		[SerializeField] private SceneReference m_LoadWhenServerStarts;
-		[SerializeField] private SceneReference m_LoadWhenServerStops;
-		[SerializeField] private SceneReference m_LoadWhenHostOrClientDisconnects;
-		private Boolean m_CallbacksRegistered;
+		[Tooltip("(Client / Host) Load this offline scene when disconnecting.")]
+		[SerializeField] private SceneReference m_LoadWhenClientDisconnects;
 
 		private void OnValidate()
 		{
 			m_LoadWhenServerStarts?.OnValidate();
-			m_LoadWhenServerStops?.OnValidate();
-			m_LoadWhenHostOrClientDisconnects?.OnValidate();
+			m_LoadWhenClientDisconnects?.OnValidate();
 		}
 
 		private void OnEnable() => NetworkManagerExt.InvokeWhenSingletonReady(RegisterCallbacks);
@@ -33,11 +38,9 @@ namespace CodeSmile.Netcode.Components
 		private void RegisterCallbacks()
 		{
 			var netMan = NetworkManager.Singleton;
-			if (netMan != null && m_CallbacksRegistered == false)
+			if (netMan != null)
 			{
-				m_CallbacksRegistered = true;
 				netMan.OnServerStarted += OnServerStarted;
-				netMan.OnServerStopped += OnServerStopped;
 				netMan.OnClientStopped += OnClientStopped;
 			}
 		}
@@ -47,29 +50,27 @@ namespace CodeSmile.Netcode.Components
 			var netMan = NetworkManager.Singleton;
 			if (netMan != null)
 			{
-				m_CallbacksRegistered = false;
 				netMan.OnServerStarted -= OnServerStarted;
-				netMan.OnServerStopped -= OnServerStopped;
 				netMan.OnClientStopped -= OnClientStopped;
 			}
 		}
 
 		private void OnServerStarted()
 		{
-			if (m_LoadWhenServerStarts != null)
-				LoadNetworkScene(m_LoadWhenServerStarts.SceneName);
-		}
-
-		private void OnServerStopped(Boolean isHost)
-		{
-			if (isHost == false && m_LoadWhenServerStops != null)
-				LoadOfflineScene(m_LoadWhenServerStops.SceneName);
+			if (IsServer)
+			{
+				if (m_LoadWhenServerStarts != null)
+					LoadNetworkScene(m_LoadWhenServerStarts.SceneName);
+			}
 		}
 
 		private void OnClientStopped(Boolean isHost)
 		{
-			if (m_LoadWhenHostOrClientDisconnects != null)
-				LoadOfflineScene(m_LoadWhenHostOrClientDisconnects.SceneName);
+			if (IsClient)
+			{
+				if (m_LoadWhenClientDisconnects != null)
+					LoadOfflineScene(m_LoadWhenClientDisconnects.SceneName);
+			}
 		}
 
 		private void LoadNetworkScene(String sceneName)

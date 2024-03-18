@@ -3,15 +3,29 @@
 
 using System;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
-	public class NetworkOneTimeTaskBehaviour : NetworkBehaviour
+	/// <summary>
+	///     On network spawn, performs one-time initialization tasks like disable component or deactivate GameObject.
+	/// </summary>
+	public class NetworkSpawnTaskBehaviour : NetworkBehaviour
 	{
-		[SerializeField]
-		private OnTaskPerformed m_OnTaskPerformed = OnTaskPerformed.DoNothing;
+		[SerializeField] private OnTaskPerformed m_OnTaskPerformed = OnTaskPerformed.DoNothing;
 
+		public override void OnNetworkSpawn()
+		{
+			base.OnNetworkSpawn();
+			TaskPerformed();
+		}
+
+		/// <summary>
+		///     Call base.OnNetworkSpawn() or call this directly to flag the task as performed and to apply
+		///     the OnTaskPerformed setting (disable/deactivate).
+		/// </summary>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		protected void TaskPerformed()
 		{
 			switch (m_OnTaskPerformed)
@@ -36,5 +50,4 @@ namespace CodeSmile.Netcode.Components
 			DeactivateGameObject,
 		}
 	}
-
 }

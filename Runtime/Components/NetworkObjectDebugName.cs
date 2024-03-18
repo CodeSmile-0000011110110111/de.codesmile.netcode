@@ -7,6 +7,10 @@ using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	/// On spawn, changes the name of the object to reflect network information.
+	/// Currently prefixes name with Owner and Remote depending on IsOwner flag. Removes "(Clone)" from name.
+	/// </summary>
 	[DisallowMultipleComponent]
 	public class NetworkObjectDebugName : NetworkBehaviour
 	{
@@ -35,10 +39,9 @@ namespace CodeSmile.Netcode.Components
 
 			// the extra characters are meant to keep the original string length
 			if (m_ReplaceNetworkPrefix && objName.StartsWith("Network"))
-				objName = $"{(IsOwner ? ">Local " : "<Remote")}{objName.Substring("Network".Length)}";
+				objName = $"{(IsOwner ? ">>Owner" : "<Remote")}{objName.Substring("Network".Length)}";
 
-			var owner = IsOwner ? "(OWNER)" : "";
-			return $"[{OwnerClientId}|{NetworkObjectId}] {objName} {owner}";
+			return $"[{OwnerClientId}|{NetworkObjectId}] {objName}";
 		}
 	}
 }

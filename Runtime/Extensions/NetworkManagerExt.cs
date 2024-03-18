@@ -6,14 +6,20 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-#if UNITY_EDITOR
 using UnityEditor;
+using UnityEngine;
+using Object = System.Object;
+#if UNITY_EDITOR
 #endif
 
 namespace CodeSmile.Netcode.Extensions
 {
+	/// <summary>
+	///     Extension and utility methods for NetworkManager
+	/// </summary>
 	public static class NetworkManagerExt
 	{
+		private const String SingletonReadyName = "OnSingletonReady";
 		private static HashSet<Action> OnSingletonReadyCallbacks;
 
 		/// <summary>
@@ -24,17 +30,20 @@ namespace CodeSmile.Netcode.Extensions
 		public static UnityTransport GetTransport(this NetworkManager netMan) => netMan.GetComponent<UnityTransport>();
 
 		/// <summary>
-		///     Let's you subscribe to NetworkManager's internal OnSingletonReady event.
+		///     Subscribe to NetworkManager's OnSingletonReady event, which is internal as of v1.8.
 		///     Will continue to work even if OnSingletonReady may become public in the future.
+		///     Will break if Unity were to rename the event. ;)
 		/// </summary>
 		/// <example>
-		///     Usage: call this in either the Awake or OnEnable method. In Start, NetworkManager.Singleton is already non-null.
-		///     The callback need only be used to subscribe to NetworkManager events that may be raised instantly after
-		///     StartServer, StartHost or StartClient are called from a component's OnEnable method.
-		///     This mainly concerns the OnServerStarted and OnClientStarted events.
-		///     By using this event handler you do not need to put scripts in the Script Execution Order nor worry about
-		///     component execution order shifting since the order of component execution is not guaranteed.
+		///     Usage: call this in either the Awake or OnEnable method!
+		///		Because in Start and later, NetworkManager.Singleton can no longer be null - unless there is no NetworkManager.
 		/// </example>
+		/// <remarks>
+		///     The callback need only be used to subscribe to NetworkManager events that are raised instantly after
+		///     StartServer, StartHost or StartClient when those are called from a component's OnEnable method.
+		///     This mainly concerns the OnServerStarted and OnClientStarted events, which run immediately.
+		///     By using this event handler you do not need to put scripts in the Script Execution Order.
+		/// </remarks>
 		/// <remarks>
 		///     The callback action will be invoked directly in case NetworkManager.Singleton is already non-null.
 		/// </remarks>
@@ -84,19 +93,18 @@ namespace CodeSmile.Netcode.Extensions
 
 		private static EventInfo GetSingletonReadyEvent()
 		{
-			const String ReadyEventName = "OnSingletonReady";
+			var bindings = BindingFlags.Static | BindingFlags.NonPublic;
+			var readyEvent = typeof(NetworkManager).GetEvent(SingletonReadyName, bindings);
 
-			var readyEvent = typeof(NetworkManager).GetEvent(ReadyEventName, BindingFlags.Static | BindingFlags.NonPublic);
-
-			// try to get the public version, because this may be made public in the future (was internal in Netcode 1.8.1)
-			if (readyEvent == null)
-				readyEvent = typeof(NetworkManager).GetEvent(ReadyEventName, BindingFlags.Static | BindingFlags.Public);
-
+			// if null, try to get the public version since it may be made public in the future (internal in Netcode 1.8.1)
 			if (readyEvent == null)
 			{
-				throw new MissingMemberException("NetworkManager does not have the 'OnSingletonReady' event. " +
-				                                 "This may indicate that an unsupported Netcode package version is installed.");
+				bindings = BindingFlags.Static | BindingFlags.Public;
+				readyEvent = typeof(NetworkManager).GetEvent(SingletonReadyName, bindings);
 			}
+
+			if (readyEvent == null)
+				throw new MissingMemberException($"NetworkManager is missing the '{SingletonReadyName}' event.");
 
 			return readyEvent;
 		}

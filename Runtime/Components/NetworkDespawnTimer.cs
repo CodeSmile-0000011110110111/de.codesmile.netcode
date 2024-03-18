@@ -4,15 +4,22 @@
 using System;
 using System.Collections;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	///     (Server only) On spawn, starts a coroutine that waits until the time elapsed, then despawns the object.
+	/// </summary>
 	public class NetworkDespawnTimer : NetworkBehaviour
 	{
-		[SerializeField] private Single m_SecondsTillDespawn = 3f;
+		/// <summary>
+		///     Event is invoked when the timer elapsed.
+		/// </summary>
+		public event Action OnTimerElapsed;
 
-		private Single m_TargetTime;
+		[SerializeField] private Single m_SecondsTillDespawn = 3f;
 
 		public override void OnNetworkSpawn()
 		{
@@ -24,9 +31,9 @@ namespace CodeSmile.Netcode.Components
 
 		private IEnumerator DespawnWhenTimeOut()
 		{
-			m_TargetTime = Time.time + m_SecondsTillDespawn;
+			yield return new WaitForSeconds(m_SecondsTillDespawn);
 
-			yield return new WaitUntil(() => Time.time > m_TargetTime);
+			OnTimerElapsed?.Invoke();
 
 			GetComponent<NetworkObject>().Despawn();
 		}

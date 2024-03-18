@@ -3,19 +3,16 @@
 
 using System;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace CodeSmile.Netcode.Components
 {
-	internal enum SpawnTask
-	{
-		DoNothing,
-		SetActive,
-		SetInactive,
-		DrawOnlyShadows,
-	}
-
+	/// <summary>
+	///     On network spawn performs a task depending on ownership.
+	///     Currently allows setting the GameObject active or inactive, or set all child renderers to render only shadows.
+	/// </summary>
 	[DisallowMultipleComponent]
 	public class NetworkSpawnBehaviour : NetworkBehaviour
 	{
@@ -59,6 +56,14 @@ namespace CodeSmile.Netcode.Components
 		{
 			foreach (var meshRenderer in GetComponentsInChildren<MeshRenderer>())
 				meshRenderer.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+		}
+
+		private enum SpawnTask
+		{
+			DoNothing,
+			SetActive,
+			SetInactive,
+			DrawOnlyShadows,
 		}
 	}
 }

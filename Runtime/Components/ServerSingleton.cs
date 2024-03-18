@@ -3,10 +3,16 @@
 
 using System;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	///     Singleton NetworkBehaviour that must only spawn on the server. Throws an exception if this component is spawned
+	///     on a client (other than host).
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	[DisallowMultipleComponent]
 	public abstract class ServerSingleton<T> : NetworkBehaviour where T : ServerSingleton<T>
 	{

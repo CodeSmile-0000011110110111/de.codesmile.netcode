@@ -6,6 +6,9 @@ using Unity.Netcode.Components;
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	/// Client-authoritative NetworkAnimator.
+	/// </summary>
 	public class NetworkClientAnimator : NetworkAnimator
 	{
 		protected override Boolean OnIsServerAuthoritative() => false;

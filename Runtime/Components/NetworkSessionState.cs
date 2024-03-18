@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	/// To be removed --- has no real purpose other than logging network events.
+	/// </summary>
 	[DisallowMultipleComponent]
 	public class NetworkSessionState : MonoBehaviour
 	{

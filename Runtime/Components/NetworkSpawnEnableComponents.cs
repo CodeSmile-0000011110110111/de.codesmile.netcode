@@ -2,15 +2,16 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
 	/// <summary>
-	///     Enables components or game objects based on whether the network object is local or remote owned.
+	///     On network spawn, enables components or game objects depending on ownership.
 	/// </summary>
 	[DisallowMultipleComponent]
-	public class NetworkSpawnEnableComponents : NetworkOneTimeTaskBehaviour
+	public class NetworkSpawnEnableComponents : NetworkSpawnTaskBehaviour
 	{
 		[Tooltip("Specify components to enable on spawn, in this order, if the object is locally owned. " +
 		         "Adding a Transform component means all components on that GameObject will be enabled.")]
@@ -29,11 +30,8 @@ namespace CodeSmile.Netcode.Components
 
 		public override void OnNetworkSpawn()
 		{
-			base.OnNetworkSpawn();
-
 			EnableComponents(IsOwner ? m_EnableIfLocalOwner : m_EnableIfRemoteOwner);
-
-			TaskPerformed();
+			base.OnNetworkSpawn();
 		}
 
 		private void EnableComponents(Component[] components)

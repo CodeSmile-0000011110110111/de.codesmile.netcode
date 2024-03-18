@@ -3,27 +3,31 @@
 
 using System;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
-	/// <summary>
-	///     Synchronizes a single rotation axis. Compresses angle to byte thus allowing for only 1.4 degrees accuracy.
-	/// </summary>
+	/// <summary>(Owner only) Synchronizes a single rotation axis. </summary>
+	/// <remarks>Compresses angle to byte, rotation increments are limited to 1.41 degrees.</remarks>
 	public class NetworkRotationAxis : NetworkBehaviour
 	{
 		private const Single CompressionFactor = 360f / Byte.MaxValue; // = 1.4117..
 
+		[Tooltip("The rotation axis to synchronize.")]
 		[SerializeField] private AngleAxis m_SyncAxis;
+		[Tooltip("Whether to synchronize local or world rotation.")]
 		[SerializeField] private Boolean m_LocalSpace = true;
+		[Tooltip("If true, interpolates rotation axis to the synchronized angle over Interpolation Time.")]
 		[SerializeField] private Boolean m_Interpolate = true;
-		[SerializeField] private Single m_InterpolationTime = 0.05f;
+		[Tooltip("How long (in seconds) interpolation should last. Should not be more than a few frames (n * deltaTime).")]
+		[SerializeField] private Single m_InterpolationTime = 0.06f;
 
 		private readonly NetworkVariable<Byte> m_Angle = new(writePerm: NetworkVariableWritePermission.Owner);
 
 		private Single m_InterpolationStartTime;
 		private Single m_InterpolationStartAngle;
-		private bool m_NeedsAngleUpdate;
+		private Boolean m_NeedsAngleUpdate;
 
 		private void FixedUpdate()
 		{
@@ -92,7 +96,7 @@ namespace CodeSmile.Netcode.Components
 			m_InterpolationStartAngle = GetSyncAngle();
 		}
 
-		internal enum AngleAxis
+		private enum AngleAxis
 		{
 			X,
 			Y,

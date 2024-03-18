@@ -6,10 +6,16 @@ using CodeSmile.Netcode.Extensions;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Netcode.Components
 {
+	/// <summary>
+	///     Handles connection approval and keeps each client's connection payload for later access.
+	///     Ensures clients with payloads exceeding the given size are refused (possible DOS attack).
+	///     Accepts connection by default. Subclass and override HandleApprovalRequest to customize.
+	/// </summary>
 	[DisallowMultipleComponent]
 	public class NetworkConnectionApproval : MonoSingleton<NetworkConnectionApproval>
 	{
@@ -19,6 +25,9 @@ namespace CodeSmile.Netcode.Components
 
 		private readonly Dictionary<UInt64, Byte[]> m_ClientPayloads = new();
 
+		/// <summary>
+		///     Current client's connection payloads. In case they may be needed later.
+		/// </summary>
 		public IReadOnlyDictionary<UInt64, Byte[]> ClientPayloads => m_ClientPayloads;
 
 		private void OnEnable() => NetworkManagerExt.InvokeWhenSingletonReady(RegisterCallbacks);
@@ -45,15 +54,23 @@ namespace CodeSmile.Netcode.Components
 		{
 			var netMan = NetworkManager.Singleton;
 			if (netMan != null)
+			{
 				netMan.ConnectionApprovalCallback += OnConnectionApprovalRequest;
+				netMan.OnClientDisconnectCallback += OnClientDisconnect;
+			}
 		}
 
 		private void UnregisterCallbacks()
 		{
 			var netMan = NetworkManager.Singleton;
 			if (netMan != null)
+			{
 				netMan.ConnectionApprovalCallback -= OnConnectionApprovalRequest;
+				netMan.OnClientDisconnectCallback -= OnClientDisconnect;
+			}
 		}
+
+		private void OnClientDisconnect(UInt64 clientId) => m_ClientPayloads.Remove(clientId);
 
 		private void OnConnectionApprovalRequest(NetworkManager.ConnectionApprovalRequest request,
 			NetworkManager.ConnectionApprovalResponse response)
@@ -61,25 +78,24 @@ namespace CodeSmile.Netcode.Components
 			if (PayloadSizeTooBig(request, response))
 				return;
 
-			// needs to be done here since approval request for host runs before OnServerStarted!
-			ClearPayloadsOnFirstConnection();
+			SetClientPayload(request);
+			HandleApprovalRequest(request, response);
+		}
 
-			var clientId = request.ClientNetworkId;
-			var payload = request.Payload;
-			m_ClientPayloads[clientId] = payload;
-
-			NetworkLog.LogInfo($"=> ConnectionApprovalRequest: Client {clientId}, " +
-			                   $"payload: '{payload?.GetString()}' ({payload.Length} bytes)");
-
+		/// <summary>
+		///     Override this to implement your custom approval processing. Don't call base since that will always approve.
+		/// </summary>
+		/// <param name="request">connection request</param>
+		/// <param name="response">connection response</param>
+		protected virtual void HandleApprovalRequest(NetworkManager.ConnectionApprovalRequest request,
+			NetworkManager.ConnectionApprovalResponse response)
+		{
+			response.CreatePlayerObject = true;
 			response.Approved = true;
 			response.Reason = $"{nameof(NetworkSessionState)} approves";
-			response.CreatePlayerObject = true;
 		}
 
-		private void ClearPayloadsOnFirstConnection()
-		{
-			if (NetworkManager.Singleton.ConnectedClients.Count == 0)
-				m_ClientPayloads.Clear();
-		}
+		private void SetClientPayload(NetworkManager.ConnectionApprovalRequest request) =>
+			m_ClientPayloads[request.ClientNetworkId] = request.Payload;
 	}
 }
