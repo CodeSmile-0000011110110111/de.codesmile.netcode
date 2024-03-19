@@ -17,7 +17,7 @@ namespace CodeSmile.Netcode.Components
 	///     Accepts connection by default. Subclass and override HandleApprovalRequest to customize.
 	/// </summary>
 	[DisallowMultipleComponent]
-	public class NetworkConnectionApproval : MonoSingleton<NetworkConnectionApproval>
+	public class ServerConnectionApproval : MonoSingleton<ServerConnectionApproval>
 	{
 		[Tooltip("Keep this as low as possible. Client approval will fail if clients send more than this many bytes " +
 		         "as payload to minimize the impact of 'large payloads' DOS attacks.")]
