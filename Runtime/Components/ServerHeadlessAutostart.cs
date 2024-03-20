@@ -21,7 +21,7 @@ namespace CodeSmile.Netcode.Components
 	///     Sets the server listen address to listen to all incoming connections. Disables relay, even if enabled.
 	/// </summary>
 	[DisallowMultipleComponent]
-	public class NetworkDedicatedServerAutostart : OneTimeTaskBehaviour
+	public class ServerHeadlessAutostart : OneTimeTaskBehaviour
 	{
 		[SerializeField] private UInt16 m_Port = 7778;
 

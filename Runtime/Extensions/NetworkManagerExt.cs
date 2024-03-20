@@ -36,7 +36,7 @@ namespace CodeSmile.Netcode.Extensions
 		/// </summary>
 		/// <example>
 		///     Usage: call this in either the Awake or OnEnable method!
-		///		Because in Start and later, NetworkManager.Singleton can no longer be null - unless there is no NetworkManager.
+		///     Because in Start and later, NetworkManager.Singleton can no longer be null - unless there is no NetworkManager.
 		/// </example>
 		/// <remarks>
 		///     The callback need only be used to subscribe to NetworkManager events that are raised instantly after

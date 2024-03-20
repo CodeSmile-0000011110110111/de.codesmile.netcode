@@ -7,12 +7,12 @@ using UnityEditor;
 using UnityEngine;
 #if UNITY_EDITOR
 using CodeSmile.SceneTools;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.Multiplayer.Playmode;
 using Unity.Netcode;
-using UnityEditor;
 #endif
 
 namespace CodeSmile.Netcode.Components
@@ -45,6 +45,7 @@ namespace CodeSmile.Netcode.Components
 		[SerializeField] private String m_ServerTag = "Server";
 		[SerializeField] private String m_HostTag = "Host";
 		[SerializeField] private String m_ClientTag = "Client";
+		private Boolean m_WillStartNetworking;
 
 #if UNITY_EDITOR
 		private void OnEnable() => EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
@@ -67,81 +68,103 @@ namespace CodeSmile.Netcode.Components
 			}
 		}
 
-		private void Start() => TryStartMultiplayerPlaymode();
+		private void Awake() => CheckInvalidTagAssignment();
 
-		private async void TryStartMultiplayerPlaymode()
+		private void Start() => StartCoroutine(TryStartMultiplayerPlaymodeEndOfFrame());
+
+		private IEnumerator TryStartMultiplayerPlaymodeEndOfFrame()
 		{
-			CheckInvalidTagAssignment();
+			if (ShouldStartServer || ShouldStartHost || ShouldStartClient)
+				SceneAutoLoader.DestroyAll(); // will auto-load scene when networking begins
 
-			var playerTags = CurrentPlayer.ReadOnlyTags();
-
-			var useRelay = IsEditorRelayEnabled();
-			if (playerTags.Contains(m_ServerTag))
+			if (ShouldStartServer || ShouldStartHost)
 			{
-				SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
 				DeleteRelayJoinCodeFile();
 				DeleteEditorRelayEnabledFile();
-
-				SetEditorRelayEnabled(useRelay);
-				NetworkLog.LogInfo("Multiplayer Playmode => Start SERVER");
-
-				await NetcodeUtility.StartServer();
-
-				if (NetworkManager.Singleton.IsServer == false)
-					throw new Exception(
-						"==> MPPM: failed to start server! Check if multiple players have the Host/Server tag assigned.");
-
-				if (useRelay)
-					WriteRelayJoinCodeFile();
-
-				NetworkLog.LogInfo("Multiplayer Playmode => SERVER did start ...");
-			}
-			else if (playerTags.Contains(m_HostTag))
-			{
-				SceneAutoLoader.DestroyAll(); // server loads scene via NetworkSessionState
-				DeleteRelayJoinCodeFile();
-				DeleteEditorRelayEnabledFile();
-
-				SetEditorRelayEnabled(useRelay);
-				NetworkLog.LogInfo("Multiplayer Playmode => Start HOST");
-
-				await NetcodeUtility.StartHost();
-
-				if (NetworkManager.Singleton.IsHost == false)
-					throw new Exception(
-						"==> MPPM: failed to start host! Check if multiple players have the Host/Server tag assigned.");
-
-				if (useRelay)
-					WriteRelayJoinCodeFile();
-
-				NetworkLog.LogInfo("Multiplayer Playmode => HOST did start ...");
-			}
-			else if (playerTags.Contains(m_ClientTag))
-			{
-				SceneAutoLoader.DestroyAll(); // clients auto-load scene when connected
-				await Task.Delay(250); // ensure a virtual client never starts before the host
-
-				NetcodeUtility.UseRelayService = await WaitForEditorRelayEnabledFile();
-				if (NetcodeUtility.UseRelayService)
-				{
-					NetworkLog.LogInfo("Multiplayer Playmode => CLIENT waiting for relay " +
-					                   $"join code in: {RelayJoinCodeFilePath}");
-					var code = await WaitForRelayJoinCodeFile();
-					NetcodeUtility.RelayJoinCode = code;
-
-					NetworkLog.LogInfo($"Multiplayer Playmode => CLIENT got relay join code: {code}");
-				}
-
-				NetworkLog.LogInfo("Multiplayer Playmode => Start CLIENT");
-				await NetcodeUtility.StartClient();
-
-				if (NetworkManager.Singleton.IsClient == false)
-					throw new Exception("==> MPPM: failed to start client!");
-
-				NetworkLog.LogInfo("Multiplayer Playmode => CLIENT connecting ...");
 			}
 
+			yield return null;
+
+			TryStartMultiplayerPlaymode();
 			TaskPerformed();
+		}
+
+		public Boolean ShouldStartServer => CurrentPlayer.ReadOnlyTags().Contains(m_ServerTag);
+		public Boolean ShouldStartHost => CurrentPlayer.ReadOnlyTags().Contains(m_HostTag);
+		public Boolean ShouldStartClient => CurrentPlayer.ReadOnlyTags().Contains(m_ClientTag);
+
+		private async Task TryStartMultiplayerPlaymode()
+		{
+			if (ShouldStartServer)
+				await StartAsServer();
+			else if (ShouldStartHost)
+				await StartAsHost();
+			else if (ShouldStartClient)
+				await StartAsClient();
+		}
+
+		private async Task StartAsServer()
+		{
+			var useRelay = IsEditorRelayEnabled();
+			SetEditorRelayEnabled(useRelay);
+			NetworkLog.LogInfo("Multiplayer Playmode => Start SERVER");
+
+			await NetcodeUtility.StartServer();
+
+			if (NetworkManager.Singleton.IsServer == false)
+			{
+				throw new Exception(
+					"==> MPPM: failed to start server! Check if multiple players have the Host/Server tag assigned.");
+			}
+
+			if (useRelay)
+				WriteRelayJoinCodeFile();
+
+			NetworkLog.LogInfo("Multiplayer Playmode => SERVER did start ...");
+		}
+
+		private async Task StartAsHost()
+		{
+			var useRelay = IsEditorRelayEnabled();
+			SetEditorRelayEnabled(useRelay);
+			NetworkLog.LogInfo("Multiplayer Playmode => Start HOST");
+
+			await NetcodeUtility.StartHost();
+
+			if (NetworkManager.Singleton.IsHost == false)
+			{
+				throw new Exception(
+					"==> MPPM: failed to start host! Check if multiple players have the Host/Server tag assigned.");
+			}
+
+			if (useRelay)
+				WriteRelayJoinCodeFile();
+
+			NetworkLog.LogInfo("Multiplayer Playmode => HOST did start ...");
+		}
+
+		private async Task StartAsClient()
+		{
+			await Task.Delay(250); // ensure a virtual client never starts before the host
+
+			NetcodeUtility.UseRelayService = await WaitForEditorRelayEnabledFile();
+			if (NetcodeUtility.UseRelayService)
+			{
+				NetworkLog.LogInfo("Multiplayer Playmode => CLIENT waiting for relay " +
+				                   $"join code in: {RelayJoinCodeFilePath}");
+				var code = await WaitForRelayJoinCodeFile();
+				NetcodeUtility.RelayJoinCode = code;
+
+				NetworkLog.LogInfo($"Multiplayer Playmode => CLIENT got relay join code: {code}");
+			}
+
+			NetworkLog.LogInfo("Multiplayer Playmode => Start CLIENT");
+			await NetcodeUtility.StartClient();
+
+			if (NetworkManager.Singleton.IsClient == false)
+				throw new Exception("==> MPPM: failed to start client!");
+
+			NetworkLog.LogInfo("Multiplayer Playmode => CLIENT connecting ...");
 		}
 
 		private void CheckInvalidTagAssignment()

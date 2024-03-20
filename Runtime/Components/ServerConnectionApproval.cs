@@ -32,7 +32,11 @@ namespace CodeSmile.Netcode.Components
 
 		private void OnEnable() => NetworkManagerExt.InvokeWhenSingletonReady(RegisterCallbacks);
 
-		private void OnDisable() => UnregisterCallbacks();
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			UnregisterCallbacks();
+		}
 
 		private Boolean PayloadSizeTooBig(NetworkManager.ConnectionApprovalRequest request,
 			NetworkManager.ConnectionApprovalResponse response)
@@ -43,8 +47,7 @@ namespace CodeSmile.Netcode.Components
 			{
 				response.Approved = false;
 				response.Reason = "payload too big";
-				NetworkLog.LogWarning(
-					$"possible DOS attack by client {request.ClientNetworkId}, payload too big: {payloadLength}");
+				NetworkLog.LogWarning($"client {request.ClientNetworkId} payload size is too big: {payloadLength} bytes");
 			}
 
 			return tooBig;
@@ -55,6 +58,7 @@ namespace CodeSmile.Netcode.Components
 			var netMan = NetworkManager.Singleton;
 			if (netMan != null)
 			{
+				netMan.ConnectionApprovalCallback -= OnConnectionApprovalRequest;
 				netMan.ConnectionApprovalCallback += OnConnectionApprovalRequest;
 				netMan.OnClientDisconnectCallback += OnClientDisconnect;
 			}
