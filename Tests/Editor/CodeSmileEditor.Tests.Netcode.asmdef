@@ -4,8 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Unity.PerformanceTesting",
-		"CodeSmile.Tests"
+        "Unity.PerformanceTesting"
     ],
     "includePlatforms": [
         "Editor"
