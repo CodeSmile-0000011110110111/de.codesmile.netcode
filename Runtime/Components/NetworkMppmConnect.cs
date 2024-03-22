@@ -1,13 +1,11 @@
 // Copyright (C) 2021-2024 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Components;
 using System;
 using UnityEditor;
 using UnityEngine;
 #if UNITY_EDITOR
 using CodeSmile.SceneTools;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,7 +25,7 @@ namespace CodeSmile.Netcode.Components
 	///     If a player has no tags that player will not start a network session.
 	/// </remarks>
 	[DisallowMultipleComponent]
-	public class NetworkMppmConnect : OneTimeTaskBehaviour
+	public class NetworkMppmConnect : MonoBehaviour
 	{
 		private const String JoinCodeFile = "RelayJoinCode.txt";
 		private const String TryRelayFile = "TryRelayInEditor.txt";
@@ -35,6 +33,8 @@ namespace CodeSmile.Netcode.Components
 		// copied from NetworkManagerEditor
 		private static readonly String k_UseEasyRelayIntegrationKey =
 			"NetworkManagerUI_UseRelay_" + Application.dataPath.GetHashCode();
+
+		private static Boolean s_AutoUnpauseOnEnterPlaymode;
 
 		[Tooltip("MPPM errors on shutdown can leave the main editor state paused with the pause button not visually pressed. " +
 		         "Starting playmode with virtual players in this case will have virtual players seem frozen. " +
@@ -48,31 +48,30 @@ namespace CodeSmile.Netcode.Components
 		private Boolean m_WillStartNetworking;
 
 #if UNITY_EDITOR
-		private void OnEnable() => EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-
-		private void OnDisable() => EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-
-		private void OnPlayModeStateChanged(PlayModeStateChange state)
+		private void Awake()
 		{
-			// MPPM workaround to prevent final scene change when exiting playmode, this may cause virtual players
-			// to throw "This cannot be used during play mode" errors as they try to load a scene during shutdown
-			// due to the delay of sending scene change messages to virtual clients
+			s_AutoUnpauseOnEnterPlaymode = m_AutoUnpauseOnEnterPlaymode;
+			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+			CheckInvalidTagAssignment();
+		}
+
+		private void Start() => TryStartMultiplayerPlaymodeEndOfFrame();
+
+		private static void OnPlayModeStateChanged(PlayModeStateChange state)
+		{
 			if (state == PlayModeStateChange.EnteredPlayMode)
 			{
-				if (m_AutoUnpauseOnEnterPlaymode && EditorApplication.isPaused)
+				if (s_AutoUnpauseOnEnterPlaymode && EditorApplication.isPaused)
 				{
 					EditorApplication.isPaused = false;
 					Debug.LogWarning($"{nameof(NetworkMppmConnect)}: EditorApplication.isPaused was true entering " +
-					                 "playmode => auto unpaused to let virtual players run");
+					                 "playmode => auto unpaused to let virtual players start up");
 				}
 			}
 		}
 
-		private void Awake() => CheckInvalidTagAssignment();
-
-		private void Start() => StartCoroutine(TryStartMultiplayerPlaymodeEndOfFrame());
-
-		private IEnumerator TryStartMultiplayerPlaymodeEndOfFrame()
+		private async void TryStartMultiplayerPlaymodeEndOfFrame()
 		{
 			if (ShouldStartServer || ShouldStartHost || ShouldStartClient)
 				SceneAutoLoader.DestroyAll(); // will auto-load scene when networking begins
@@ -83,10 +82,8 @@ namespace CodeSmile.Netcode.Components
 				DeleteEditorRelayEnabledFile();
 			}
 
-			yield return null;
-
-			TryStartMultiplayerPlaymode();
-			TaskPerformed();
+			await TryStartMultiplayerPlaymode();
+			enabled = false;
 		}
 
 		public Boolean ShouldStartServer => CurrentPlayer.ReadOnlyTags().Contains(m_ServerTag);
