@@ -29,6 +29,9 @@ namespace CodeSmile.Netcode.Components
 	{
 		private const String JoinCodeFile = "RelayJoinCode.txt";
 		private const String TryRelayFile = "TryRelayInEditor.txt";
+		private const string DefaultServerTag = "Server";
+		private const string DefaultHostTag = "Host";
+		private const string DefaultClientTag = "Client";
 
 		// copied from NetworkManagerEditor
 		private static readonly String k_UseEasyRelayIntegrationKey =
@@ -42,9 +45,10 @@ namespace CodeSmile.Netcode.Components
 		         "Uncheck if you intentionally want to start paused for debugging purposes.")]
 		[SerializeField] private Boolean m_AutoUnpauseOnEnterPlaymode = true;
 
-		[SerializeField] private String m_ServerTag = "Server";
-		[SerializeField] private String m_HostTag = "Host";
-		[SerializeField] private String m_ClientTag = "Client";
+		[SerializeField] private String m_ServerTag = DefaultServerTag;
+		[SerializeField] private String m_HostTag = DefaultHostTag;
+		[SerializeField] private String m_ClientTag = DefaultClientTag;
+
 		private Boolean m_WillStartNetworking;
 
 #if UNITY_EDITOR

@@ -16,6 +16,9 @@
   "dependencies": {
     "com.unity.netcode.gameobjects": "1.8.1",
     "com.unity.services.relay": "1.0.5",
+    "com.unity.multiplayer.playmode": "1.0.0",
+    "com.unity.dedicated-server": "1.0.0",
+    "com.unity.multiplayer.tools": "2.1.0",
     "com.unity.test-framework": "1.4.1",
     "de.codesmile.extensions": "1.2.0"
   },
