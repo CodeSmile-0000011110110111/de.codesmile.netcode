@@ -2,8 +2,7 @@
     "name": "CodeSmile.Tests.Netcode",
     "rootNamespace": "CodeSmile.Tests",
     "references": [
-        "UnityEngine.TestRunner",
-        "Unity.PerformanceTesting"
+        "UnityEngine.TestRunner"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

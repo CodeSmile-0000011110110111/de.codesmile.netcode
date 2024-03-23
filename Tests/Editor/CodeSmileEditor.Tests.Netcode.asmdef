@@ -3,8 +3,7 @@
     "rootNamespace": "CodeSmileEditor.Tests",
     "references": [
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "Unity.PerformanceTesting"
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"
