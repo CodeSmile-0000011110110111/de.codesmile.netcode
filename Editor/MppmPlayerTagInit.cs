@@ -17,9 +17,9 @@ namespace CodeSmileEditor.Netcode
 		private const String FilePath = "ProjectSettings/VirtualProjectsConfig.json";
 		private const String FileContents = @"{
   ""PlayerTags"": [
-    ""Server"",
+    ""Client"",
     ""Host"",
-    ""Client""
+    ""Server""
   ]
 }";
 
