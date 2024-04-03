@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Netcode.CommandLine
@@ -30,7 +31,10 @@ namespace CodeSmile.Netcode.CommandLine
 
 				// clients provide relay join code as argument
 				if (String.IsNullOrWhiteSpace(joinCode))
+				{
 					Debug.Log("Relay service enabled.");
+					NetcodeUtility.RelayJoinCode = String.Empty;
+				}
 				else
 				{
 					Debug.Log($"Connecting through Relay with join code: {joinCode}");

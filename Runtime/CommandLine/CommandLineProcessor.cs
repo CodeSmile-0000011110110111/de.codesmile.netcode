@@ -8,10 +8,10 @@ namespace CodeSmile.Netcode.CommandLine
 {
 	public class CommandLineProcessor : OneTimeTaskBehaviour
 	{
+		[SerializeField] private CmdArgNetStart m_NetStart;
+		[SerializeField] private CmdArgRelay m_Relay;
 		[SerializeField] private CmdArgAddress m_Address;
 		[SerializeField] private CmdArgPort m_Port;
-		[SerializeField] private CmdArgRelay m_Relay;
-		[SerializeField] private CmdArgNetStart m_NetStart;
 
 		private ICmdArgImpl[] m_Arguments;
 
