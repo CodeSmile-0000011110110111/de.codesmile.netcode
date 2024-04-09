@@ -8,8 +8,8 @@ using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
-using Unity.Services.Core;
 using Unity.Services.Relay;
+using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Netcode
@@ -19,9 +19,9 @@ namespace CodeSmile.Netcode
 	///     Set the static public properties before calling the Server/Host/Client methods.
 	/// </summary>
 	/// <remarks>
-	/// CAUTION: This may be redesigned or removed. It starts a session and has relay support.
-	/// But moving forward it seems better to separate this into individual scripts, if not components,
-	/// like: NetworkStart, NetworkRelay, NetworkAuthenticate ...
+	///     CAUTION: This may be redesigned or removed. It starts a session and has relay support.
+	///     But moving forward it seems better to separate this into individual scripts, if not components,
+	///     like: NetworkStart, NetworkRelay, NetworkAuthenticate ...
 	/// </remarks>
 	public static partial class NetcodeUtility
 	{
@@ -99,10 +99,11 @@ namespace CodeSmile.Netcode
 
 		private static async Task AuthenticateAnonymously()
 		{
-			await UnityServices.InitializeAsync();
-
 			if (AuthenticationService.Instance.IsSignedIn == false)
+			{
 				await AuthenticationService.Instance.SignInAnonymouslyAsync();
+				Debug.LogWarning(AuthenticationService.Instance.PlayerInfo);
+			}
 
 			// TODO: conform to DSA
 			// Confirm the LastNotificationDate field is not null after every successful sign in, meaning there are notifications available for that player.
