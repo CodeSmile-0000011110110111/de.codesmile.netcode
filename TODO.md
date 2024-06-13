@@ -1,4 +1,4 @@
-﻿# TO DO or not to do - CodeSmile ???
+﻿# TO DO or not to do - CodeSmile Netcode
 Is not a question! :)
 
 ## Ideas 
